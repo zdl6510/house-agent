@@ -1,5 +1,10 @@
 FROM langchain/langgraph-api:3.11-wolfi
 
+ARG PYPI_INDEX_URL=https://mirrors.cloud.tencent.com/pypi/simple
+ENV UV_DEFAULT_INDEX=${PYPI_INDEX_URL}
+ENV UV_INDEX_URL=${PYPI_INDEX_URL}
+ENV PIP_INDEX_URL=${PYPI_INDEX_URL}
+
 
 
 # -- Adding local package . --
