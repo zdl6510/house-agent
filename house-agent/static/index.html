@@ -538,10 +538,10 @@
         </header>
 
         <div class="search-box">
-            <input type="text" class="search-input" placeholder="输入城市、区域或小区名称">
-            <input type="text" class="search-input" placeholder="租金预算（元/月）">
-            <input type="text" class="search-input" placeholder="户型需求（如：1室1厅）">
-            <button class="search-btn">搜索房源</button>
+            <input type="text" class="search-input" id="locationInput" placeholder="输入城市、区域或小区名称">
+            <input type="text" class="search-input" id="budgetInput" placeholder="租金预算（元/月）">
+            <input type="text" class="search-input" id="layoutInput" placeholder="户型需求（如：1室1厅）">
+            <button class="search-btn" id="searchBtn">搜索房源</button>
         </div>
 
         <div class="features">
@@ -679,24 +679,30 @@
         const chatMessages = document.getElementById('chatMessages');
         const chatInput = document.getElementById('chatInput');
         const sendBtn = document.getElementById('sendBtn');
+        const locationInput = document.getElementById('locationInput');
+        const budgetInput = document.getElementById('budgetInput');
+        const layoutInput = document.getElementById('layoutInput');
+        const searchBtn = document.getElementById('searchBtn');
 
         // 打开聊天窗口
-        chatIcon.addEventListener('click', async () => {
+        async function openChatPanel() {
             if (!isChatOpen) {
                 chatContainer.style.display = 'flex';
                 isChatOpen = true;
-
-                // 如果没有会话，则创建一个
-                if (!currentThreadId) {
-                    await createThread();
-                }
-
-                // 滚动到底部
-                setTimeout(() => {
-                    chatMessages.scrollTop = chatMessages.scrollHeight;
-                }, 100);
             }
-        });
+
+            // 如果没有会话，则创建一个
+            if (!currentThreadId) {
+                await createThread();
+            }
+
+            // 滚动到底部
+            setTimeout(() => {
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }, 100);
+        }
+
+        chatIcon.addEventListener('click', openChatPanel);
 
         // 关闭聊天窗口
         closeChat.addEventListener('click', () => {
@@ -711,8 +717,50 @@
                 sendMessage();
             }
         });
+        searchBtn.addEventListener('click', handleHouseSearch);
+        [locationInput, budgetInput, layoutInput].forEach((input) => {
+            input.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    handleHouseSearch();
+                }
+            });
+        });
 
         // 创建会话
+        async function handleHouseSearch() {
+            const message = buildHouseSearchMessage();
+            if (!message) {
+                locationInput.focus();
+                return;
+            }
+
+            await openChatPanel();
+            await sendMessage(message);
+        }
+
+        function buildHouseSearchMessage() {
+            const location = locationInput.value.trim();
+            const budget = budgetInput.value.trim();
+            const layout = layoutInput.value.trim();
+
+            if (!location && !budget && !layout) {
+                return '';
+            }
+
+            const requirements = [];
+            if (location) {
+                requirements.push(`地点：${location}`);
+            }
+            if (budget) {
+                requirements.push(`预算：${budget} 元/月`);
+            }
+            if (layout) {
+                requirements.push(`户型：${layout}`);
+            }
+
+            return `我想找房源，${requirements.join('，')}。请根据这些需求帮我推荐合适的租房房源。`;
+        }
+
         async function createThread() {
             try {
                 const response = await fetch(`${API_BASE_URL}/threads`, {
@@ -743,12 +791,14 @@
         }
 
         // 发送消息函数
-        async function sendMessage() {
-            const message = chatInput.value.trim();
+        async function sendMessage(messageOverride) {
+            const message = (messageOverride ?? chatInput.value).trim();
             if (!message || !currentThreadId) return;
 
             // 清空输入框
-            chatInput.value = '';
+            if (!messageOverride) {
+                chatInput.value = '';
+            }
 
             // 显示用户消息
             const userMessageElement = document.createElement('div');
