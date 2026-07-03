@@ -792,11 +792,11 @@
 
         // 发送消息函数
         async function sendMessage(messageOverride) {
-            const message = (messageOverride ?? chatInput.value).trim();
+            const message = (typeof messageOverride === 'string' ? messageOverride : chatInput.value).trim();
             if (!message || !currentThreadId) return;
 
             // 清空输入框
-            if (!messageOverride) {
+            if (typeof messageOverride !== 'string') {
                 chatInput.value = '';
             }
 
