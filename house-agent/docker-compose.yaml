@@ -12,6 +12,13 @@ services:
             - .env
         extra_hosts:
             - "host.docker.internal:host-gateway"
+        restart: unless-stopped
+        healthcheck:
+            test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/ok', timeout=3)"]
+            interval: 15s
+            timeout: 5s
+            retries: 5
+            start_period: 30s
         dns:
             - 223.5.5.5
             - 8.8.8.8
@@ -22,7 +29,9 @@ services:
         ports:
             - "80:80"
         depends_on:
-            - langgraph-api
+            langgraph-api:
+                condition: service_healthy
+        restart: unless-stopped
         dns:
             - 223.5.5.5
             - 8.8.8.8

@@ -762,6 +762,75 @@
             transform: scale(1.025);
         }
 
+        .catalog-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .catalog-toolbar .section-title { margin-bottom: 0; }
+
+        .catalog-status {
+            color: var(--muted);
+            font-size: 0.9rem;
+        }
+
+        .catalog-status.error { color: #b34132; }
+
+        .house-card { position: relative; }
+
+        .favorite-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            z-index: 2;
+            display: grid;
+            width: 38px;
+            height: 38px;
+            place-items: center;
+            color: #344b45;
+            background: rgba(255,255,255,.92);
+            border: 0;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,.12);
+        }
+
+        .favorite-btn.active { color: #e76244; }
+
+        .house-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 18px;
+        }
+
+        .house-action {
+            flex: 1;
+            padding: 9px 12px;
+            color: var(--primary);
+            background: #fff;
+            border: 1px solid #b9d4cd;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .house-action.primary { color: #fff; background: var(--primary); border-color: var(--primary); }
+
+        .catalog-empty {
+            grid-column: 1 / -1;
+            padding: 52px 24px;
+            color: var(--muted);
+            text-align: center;
+            background: #fff;
+            border: 1px dashed #c6d5d1;
+            border-radius: 8px;
+        }
+
+        .house-card.skeleton { min-height: 390px; background: linear-gradient(100deg,#edf2f0 30%,#f8faf9 50%,#edf2f0 70%); background-size: 300% 100%; animation: shimmer 1.4s infinite; }
+        @keyframes shimmer { to { background-position-x: -150%; } }
+
         .house-info {
             position: relative;
             padding: 20px;
@@ -1184,56 +1253,14 @@
         </div>
 
         <div class="house-list">
-            <h2 class="section-title">推荐房源</h2>
-            <div class="houses">
-                <div class="house-card">
-                    <img src="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80"
-                        alt="公寓图片" class="house-img">
-                    <div class="house-info">
-                        <h3 class="house-title">整租·阳光公寓 1室1厅1卫</h3>
-                        <div class="house-location">
-                            <i class="fas fa-map-marker-alt"></i> 北京海淀·中关村
-                        </div>
-                        <div class="house-price">¥4500/月</div>
-                        <div class="house-tags">
-                            <span class="tag">近地铁</span>
-                            <span class="tag">精装修</span>
-                            <span class="tag">拎包入住</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="house-card">
-                    <img src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80"
-                        alt="公寓图片" class="house-img">
-                    <div class="house-info">
-                        <h3 class="house-title">合租·青年社区 主卧独卫</h3>
-                        <div class="house-location">
-                            <i class="fas fa-map-marker-alt"></i> 上海浦东·陆家嘴
-                        </div>
-                        <div class="house-price">¥3200/月</div>
-                        <div class="house-tags">
-                            <span class="tag">室友友好</span>
-                            <span class="tag">智能门锁</span>
-                            <span class="tag">公共区域</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="house-card">
-                    <img src="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80"
-                        alt="公寓图片" class="house-img">
-                    <div class="house-info">
-                        <h3 class="house-title">整租·温馨家园 2室1厅1卫</h3>
-                        <div class="house-location">
-                            <i class="fas fa-map-marker-alt"></i> 广州天河·珠江新城
-                        </div>
-                        <div class="house-price">¥5800/月</div>
-                        <div class="house-tags">
-                            <span class="tag">南北通透</span>
-                            <span class="tag">家电齐全</span>
-                            <span class="tag">小区安静</span>
-                        </div>
-                    </div>
-                </div>
+            <div class="catalog-toolbar">
+                <h2 class="section-title">推荐房源</h2>
+                <span class="catalog-status" id="catalogStatus" role="status" aria-live="polite">正在连接房源数据库…</span>
+            </div>
+            <div class="houses" id="houses" aria-busy="true">
+                <div class="house-card skeleton"></div>
+                <div class="house-card skeleton"></div>
+                <div class="house-card skeleton"></div>
             </div>
         </div>
 
@@ -1294,6 +1321,8 @@
         let isChatOpen = false;
         let aiMessageElement = null;
         let thinkElement = null;
+        let isSending = false;
+        let catalogRequest = null;
 
         // 配置 marked
         marked.setOptions({
@@ -1314,6 +1343,36 @@
         const budgetInput = document.getElementById('budgetInput');
         const layoutInput = document.getElementById('layoutInput');
         const searchBtn = document.getElementById('searchBtn');
+        const houses = document.getElementById('houses');
+        const catalogStatus = document.getElementById('catalogStatus');
+
+        const USER_ID_KEY = 'rental-assistant-user-id';
+        const FAVORITES_KEY = 'rental-assistant-favorites';
+        const userId = getOrCreateUserId();
+
+        function getOrCreateUserId() {
+            let id = localStorage.getItem(USER_ID_KEY);
+            if (!id) {
+                id = window.crypto?.randomUUID?.() || `web-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+                localStorage.setItem(USER_ID_KEY, id);
+            }
+            return id;
+        }
+
+        function safeMarkdown(markdown) {
+            const template = document.createElement('template');
+            template.innerHTML = marked.parse(String(markdown || ''));
+            template.content.querySelectorAll('script,style,iframe,object,embed,form').forEach(node => node.remove());
+            template.content.querySelectorAll('*').forEach(node => {
+                [...node.attributes].forEach(attr => {
+                    const value = attr.value.trim().toLowerCase();
+                    if (attr.name.startsWith('on') || ((attr.name === 'href' || attr.name === 'src') && value.startsWith('javascript:'))) {
+                        node.removeAttribute(attr.name);
+                    }
+                });
+            });
+            return template.innerHTML;
+        }
 
         const CHAT_POSITION_KEY = 'rental-assistant-position';
         const CHAT_VIEWPORT_MARGIN = 8;
@@ -1553,14 +1612,127 @@
 
         // 创建会话
         async function handleHouseSearch() {
-            const message = buildHouseSearchMessage();
-            if (!message) {
-                locationInput.focus();
+            await loadCatalog({
+                location: locationInput.value.trim(),
+                budget_max: parseBudget(budgetInput.value),
+                layout: layoutInput.value.trim(),
+                limit: 12
+            });
+        }
+
+        function parseBudget(value) {
+            const numbers = String(value || '').match(/\d+(?:\.\d+)?/g);
+            return numbers?.length ? Number(numbers[numbers.length - 1]) : null;
+        }
+
+        const fallbackImages = [
+            'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=800&q=80',
+            'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80',
+            'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=800&q=80'
+        ];
+
+        function loadFavorites() {
+            try { return new Set(JSON.parse(localStorage.getItem(FAVORITES_KEY) || '[]')); }
+            catch { return new Set(); }
+        }
+
+        function renderCatalog(listings) {
+            houses.replaceChildren();
+            houses.setAttribute('aria-busy', 'false');
+            if (!listings.length) {
+                const empty = document.createElement('div');
+                empty.className = 'catalog-empty';
+                empty.textContent = '没有找到符合条件的房源，您可以放宽筛选条件后重试。';
+                houses.appendChild(empty);
                 return;
             }
+            const favorites = loadFavorites();
+            listings.forEach((listing, index) => {
+                const card = document.createElement('article');
+                card.className = 'house-card';
+                const image = document.createElement('img');
+                image.className = 'house-img';
+                image.alt = listing.title || '房源图片';
+                image.loading = 'lazy';
+                image.src = /^https?:\/\//i.test(listing.image || '') ? listing.image : fallbackImages[index % fallbackImages.length];
+                image.onerror = () => { image.onerror = null; image.src = fallbackImages[index % fallbackImages.length]; };
 
-            await openChatPanel();
-            await sendMessage(message);
+                const favorite = document.createElement('button');
+                favorite.className = `favorite-btn${favorites.has(String(listing.id)) ? ' active' : ''}`;
+                favorite.type = 'button';
+                favorite.title = '收藏房源';
+                favorite.setAttribute('aria-label', '收藏房源');
+                favorite.innerHTML = '<i class="fas fa-heart"></i>';
+                favorite.addEventListener('click', () => {
+                    const saved = loadFavorites();
+                    const id = String(listing.id);
+                    saved.has(id) ? saved.delete(id) : saved.add(id);
+                    localStorage.setItem(FAVORITES_KEY, JSON.stringify([...saved]));
+                    favorite.classList.toggle('active', saved.has(id));
+                });
+
+                const info = document.createElement('div');
+                info.className = 'house-info';
+                const title = document.createElement('h3');
+                title.className = 'house-title';
+                title.textContent = listing.title || '优选房源';
+                const location = document.createElement('div');
+                location.className = 'house-location';
+                location.textContent = [listing.city, listing.region, listing.address].filter(Boolean).join(' · ') || '位置待确认';
+                const price = document.createElement('div');
+                price.className = 'house-price';
+                price.textContent = Number.isFinite(listing.price) ? `¥${listing.price.toLocaleString('zh-CN')}/月` : '价格面议';
+                const tags = document.createElement('div');
+                tags.className = 'house-tags';
+                (listing.tags || []).forEach(value => {
+                    const tag = document.createElement('span'); tag.className = 'tag'; tag.textContent = value; tags.appendChild(tag);
+                });
+                const actions = document.createElement('div');
+                actions.className = 'house-actions';
+                const consult = document.createElement('button');
+                consult.className = 'house-action'; consult.textContent = '咨询详情'; consult.type = 'button';
+                consult.addEventListener('click', async () => { await openChatPanel(); await sendMessage(`请介绍一下房源“${listing.title}”的详细信息。`); });
+                const reserve = document.createElement('button');
+                reserve.className = 'house-action primary'; reserve.textContent = '预约看房'; reserve.type = 'button';
+                reserve.addEventListener('click', async () => { await openChatPanel(); await sendMessage(`我想预订房源“${listing.title}”。`); });
+                actions.append(consult, reserve);
+                info.append(title, location, price, tags, actions);
+                card.append(image, favorite, info);
+                houses.appendChild(card);
+            });
+        }
+
+        async function loadCatalog(filters = {}) {
+            catalogRequest?.abort();
+            const controller = new AbortController();
+            catalogRequest = controller;
+            const timeout = setTimeout(() => controller.abort(), 12000);
+            houses.setAttribute('aria-busy', 'true');
+            catalogStatus.className = 'catalog-status';
+            catalogStatus.textContent = '正在读取真实房源…';
+            searchBtn.disabled = true;
+            try {
+                const response = await fetch(`${API_BASE_URL}/runs/wait`, {
+                    method: 'POST', headers: {'Content-Type': 'application/json'}, signal: controller.signal,
+                    body: JSON.stringify({assistant_id: 'catalog_agent', input: {...filters, limit: filters.limit || 9}})
+                });
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                const data = await response.json();
+                renderCatalog(Array.isArray(data.listings) ? data.listings : []);
+                catalogStatus.textContent = data.error
+                    ? `${data.error}${data.stale ? '（当前展示最近缓存）' : ''}`
+                    : `已加载 ${data.total ?? data.listings?.length ?? 0} 套真实房源`;
+                catalogStatus.classList.toggle('error', Boolean(data.error));
+            } catch (error) {
+                if (catalogRequest !== controller) return;
+                if (error.name !== 'AbortError' || !controller.signal.aborted) console.error('加载房源失败:', error);
+                renderCatalog([]);
+                catalogStatus.className = 'catalog-status error';
+                catalogStatus.textContent = error.name === 'AbortError' ? '请求超时，请稍后重试' : '房源服务暂时不可用，请稍后重试';
+            } finally {
+                clearTimeout(timeout);
+                if (catalogRequest === controller) searchBtn.disabled = false;
+            }
         }
 
         function buildHouseSearchMessage() {
@@ -1588,13 +1760,17 @@
 
         async function createThread() {
             try {
+                const controller = new AbortController();
+                const timeout = setTimeout(() => controller.abort(), 10000);
                 const response = await fetch(`${API_BASE_URL}/threads`, {
                     method: 'POST',
+                    signal: controller.signal,
                     headers: {
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({})
                 });
+                clearTimeout(timeout);
 
                 if (!response.ok) {
                     throw new Error(`服务器返回错误状态: ${response.status}`);
@@ -1603,6 +1779,7 @@
                 const data = await response.json();
                 currentThreadId = data.thread_id;
                 console.log('会话创建成功:', currentThreadId);
+                return true;
 
             } catch (error) {
                 console.error('创建会话失败:', error);
@@ -1612,13 +1789,18 @@
                 errorMsg.style.color = '#e74c3c';
                 errorMsg.textContent = `⚠️ 无法连接到服务器 (${API_BASE_URL})，请确认：\n1. LangGraph 服务已启动\n2. 端口地址配置正确\n3. 网络连接正常`;
                 chatMessages.appendChild(errorMsg);
+                return false;
             }
         }
 
         // 发送消息函数
         async function sendMessage(messageOverride) {
             const message = (typeof messageOverride === 'string' ? messageOverride : chatInput.value).trim();
-            if (!message || !currentThreadId) return;
+            if (!message || isSending) return;
+            if (!currentThreadId && !(await createThread())) return;
+            isSending = true;
+            sendBtn.disabled = true;
+            chatInput.disabled = true;
 
             // 清空输入框
             if (typeof messageOverride !== 'string') {
@@ -1646,9 +1828,7 @@
                         command: {
                             resume: message
                         },
-                        context: {
-                            user_id: "159"
-                        },
+                        context: { user_id: userId },
                         stream_mode: ["updates", "messages"],
                         stream_subgraphs: true
                     };
@@ -1659,9 +1839,7 @@
                         input: {
                             messages: [{ "role": "human", "content": message }]
                         },
-                        context: {
-                            user_id: "159"
-                        },
+                        context: { user_id: userId },
                         stream_mode: ["updates", "messages"],
                         stream_subgraphs: true
                     };
@@ -1721,19 +1899,22 @@
                 });
 
                 // 读取流式响应
+                if (!response.body) throw new Error('服务器未返回可读取的数据流');
                 const reader = response.body.getReader();
                 const decoder = new TextDecoder();
                 let thinkContentText = '';
                 let aiMessageContent = '';
                 let startAI = false;
                 let interruptId = '';
+                let streamBuffer = '';
+                let currentType = '';
                 while (true) {
                     const { done, value } = await reader.read();
                     if (done) break;
 
-                    const chunk = decoder.decode(value);
-                    const lines = chunk.split('\n');
-                    let currentType = '';
+                    streamBuffer += decoder.decode(value, {stream: true});
+                    const lines = streamBuffer.split('\n');
+                    streamBuffer = lines.pop() || '';
 
 
                     for (const line of lines) {
@@ -1786,7 +1967,7 @@
                                         interruptMessageElement.className = 'message ai-message';
                                         interruptMessageElement.id = '__interrupt__'
                                         // 使用 marked 解析 Markdown
-                                        interruptMessageElement.innerHTML = marked.parse(data.__interrupt__[0].value);
+                                        interruptMessageElement.innerHTML = safeMarkdown(data.__interrupt__[0].value);
                                         chatMessages.appendChild(interruptMessageElement);
                                         // 去重，会存在两个事件，如下：
                                         // event: updates|reserve_graph:b9ec69e0-ce52-e030-c3d3-ccdba7555727
@@ -1827,7 +2008,7 @@
                                         // 更新AI消息内容
                                         aiMessageContent = messageData.content;
                                         // 使用 marked 解析 Markdown
-                                        aiMessageElement.innerHTML = marked.parse(aiMessageContent);
+                                        aiMessageElement.innerHTML = safeMarkdown(aiMessageContent);
                                         // 滚动到底部
                                         chatMessages.scrollTop = chatMessages.scrollHeight;
                                     }
@@ -1853,11 +2034,17 @@
                 }
                 chatMessages.appendChild(errorMessage);
                 chatMessages.scrollTop = chatMessages.scrollHeight;
+            } finally {
+                isSending = false;
+                sendBtn.disabled = false;
+                chatInput.disabled = false;
+                chatInput.focus();
             }
         }
 
         // 页面加载完成后，预创建会话
         window.addEventListener('load', () => {
+            loadCatalog({limit: 9});
             // 延迟创建会话，避免页面加载时立即发起请求
             setTimeout(() => {
                 createThread();

@@ -1,13 +1,10 @@
-import os
+import json
 import uuid
 from typing import Optional
 
-from dotenv import load_dotenv
-from langchain_community.agent_toolkits import SQLDatabaseToolkit
-from langchain_community.tools import QuerySQLDatabaseTool
-from langchain_community.utilities import SQLDatabase
 from langchain_core.messages import filter_messages, HumanMessage, SystemMessage, AIMessage
 from langchain_core.runnables import RunnableConfig
+from langchain_core.tools import tool
 from langgraph.prebuilt import ToolNode
 from langgraph.runtime import Runtime
 from langgraph.store.base import BaseStore
@@ -15,6 +12,7 @@ from langgraph.types import interrupt
 from pydantic import BaseModel, Field
 
 from src.agent.common.context import ContextSchema
+from src.agent.common.database import execute_readonly, mysql_connection, quote_identifier
 from src.agent.common.llm import model
 from src.agent.common.store import UserPreferences
 from src.agent.state.recommend import RecommendState, get_recommend_info
@@ -66,12 +64,12 @@ def collect_user_info(state: RecommendState, runtime: Runtime[ContextSchema], co
     # 用户的偏好数据： 预算 1000-2000元
     user_messages = filter_messages(state["messages"], include_types="human")
     pref = state.get("user_preferences")
-    if pref and (pref["budget_min"] or pref["budget_max"]):
+    if pref and (pref.get("budget_min") is not None or pref.get("budget_max") is not None):
         # 偏好中包含最低和最高预算
         extract_messages = [
             HumanMessage(content="用户的历史偏好信息如下："
-                         f"1. 最低预算：{pref['budget_min']}"
-                         f"2. 最高预算：{pref['budget_max']}"),
+                         f"1. 最低预算：{pref.get('budget_min')}"
+                         f"2. 最高预算：{pref.get('budget_max')}"),
             user_messages[-1]
         ]
     else:
@@ -129,9 +127,9 @@ def collect_user_info(state: RecommendState, runtime: Runtime[ContextSchema], co
             # 已经缺失关键信息，而且用户还不提供。需要给关键信息设置默认值
             if not updated_state.get("city"):
                 updated_state["city"] = "随机城市"
-            if not updated_state.get("budget_min"):
+            if updated_state.get("budget_min") is None:
                 updated_state["budget_min"] = 500.0
-            if not updated_state.get("budget_max"):
+            if updated_state.get("budget_max") is None:
                 updated_state["budget_max"] = 5000.0
             if not updated_state.get("room_count"):
                 updated_state["room_count"] = 5
@@ -143,14 +141,19 @@ def collect_user_info(state: RecommendState, runtime: Runtime[ContextSchema], co
             # updated_state就是包含了中断的结果
             updated_state = update_state(updated_state, extracted_info)
 
+        updated_state.setdefault("city", "随机城市")
+        updated_state.setdefault("budget_min", 0.0)
+        updated_state.setdefault("budget_max", 10000.0)
+        updated_state.setdefault("room_count", 5)
+
     # 4. 持久化处理：更新预算
     # 场景3：
     # 最新的用户消息：西安 3套  预算0-5000元
     # 用户的偏好数据：预算 1000-2000元
-    if updated_state.get("budget_min") or updated_state.get("budget_max"):
+    if updated_state.get("budget_min") is not None or updated_state.get("budget_max") is not None:
         # 有可能会更新
         user_id = runtime.context.get("user_id") if runtime.context is not None else config.get("configurable", {}).get("user_id")
-        namespace = (user_id, "preferences")
+        namespace = (str(user_id or "anonymous"), "preferences")
         prefs_result = store.search(namespace)
         if len(prefs_result) == 0:
             # 新增
@@ -168,8 +171,8 @@ def collect_user_info(state: RecommendState, runtime: Runtime[ContextSchema], co
             # state:  2000-3000   不用更新
             # state:  500-6000    需要更新  store:  500-6000
             prefs = prefs_result[0].value
-            store_min = prefs["budget_min"]
-            store_max = prefs["budget_max"]
+            store_min = prefs.get("budget_min")
+            store_max = prefs.get("budget_max")
             cur_min = updated_state.get("budget_min")
             cur_max = updated_state.get("budget_max")
             update_min = False   # 是否更新最小预算
@@ -211,19 +214,46 @@ def collect_user_info(state: RecommendState, runtime: Runtime[ContextSchema], co
     return updated_state
 
 
-# 使用.env环境变量(win)
-load_dotenv()
-db_user = os.getenv('DB_USER')
-db_password = os.getenv('DB_PASSWORD')
-db_host = os.getenv('DB_HOST')
-db_port = os.getenv('DB_PORT')
-db_name = os.getenv('DB_NAME')
-db = SQLDatabase.from_uri(f"mysql+pymysql://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}")
+@tool("sql_db_list_tables")
+def list_tables_tool() -> str:
+    """List available database tables."""
+    try:
+        with mysql_connection() as connection, connection.cursor() as cursor:
+            cursor.execute("SHOW TABLES")
+            return ", ".join(str(next(iter(row.values()))) for row in cursor.fetchall())
+    except Exception as exc:
+        return f"数据库暂时不可用：{exc}"
+
+
+@tool("sql_db_schema")
+def get_schema_tool(table_names: str) -> str:
+    """Return columns and a small sample for comma-separated table names."""
+    try:
+        requested = {name.strip() for name in table_names.split(",") if name.strip()}
+        with mysql_connection() as connection, connection.cursor() as cursor:
+            cursor.execute("SHOW TABLES")
+            available = {str(next(iter(row.values()))) for row in cursor.fetchall()}
+            output = []
+            for table in sorted(requested & available):
+                cursor.execute(f"SHOW COLUMNS FROM {quote_identifier(table)}")
+                columns = list(cursor.fetchall())
+                cursor.execute(f"SELECT * FROM {quote_identifier(table)} LIMIT 3")
+                output.append({"table": table, "columns": columns, "sample": list(cursor.fetchall())})
+            return json.dumps(output, ensure_ascii=False, default=str)
+    except Exception as exc:
+        return f"数据库暂时不可用：{exc}"
+
+
+@tool("sql_db_query")
+def run_query_tool(query: str) -> str:
+    """Execute one safe, read-only SQL query."""
+    try:
+        return json.dumps(execute_readonly(query), ensure_ascii=False, default=str)
+    except Exception as exc:
+        return f"查询未执行：{exc}"
 # print("\n\n\n\n\n\n\n\n\n\n\n\n\n")
 # print('数据库连接成功！', db)
 # 获取数据库工具
-toolkit = SQLDatabaseToolkit(db=db, llm=model)
-tools = toolkit.get_tools()
 # print(tools)
 # for tool in tools:
 #     print(tool.name)
@@ -236,10 +266,8 @@ tools = toolkit.get_tools()
 # ]
 
 # 节点：获取表信息
-get_schema_tool =  next(tool for tool in tools if tool.name == "sql_db_schema")
 get_schema_node = ToolNode([get_schema_tool], name="get_schema")  # 工具执行节点（返回ToolMessage）
 # 节点：执行sql查询
-run_query_tool =  next(tool for tool in tools if tool.name == "sql_db_query")
 run_query_node = ToolNode([run_query_tool], name="run_query")     # 工具执行节点（返回ToolMessage）
 
 # 节点：获取全量表
@@ -255,7 +283,6 @@ def list_tables(state: RecommendState):
     tool_call_message = AIMessage(content="", tool_calls=[tool_call])
 
     # 2. 手动调用工具：sql_db_list_tables
-    list_tables_tool = next(tool for tool in tools if tool.name == "sql_db_list_tables")
     tool_message = list_tables_tool.invoke(tool_call)
 
     # 3. 整合结果
@@ -288,7 +315,7 @@ def generate_query(state: RecommendState):
 不要对数据库做任何DML语句（INSERT， UPDATE， DELETE， DROP等)。
         """
     system_prompt = generate_query_system_prompt.format(
-        dialect=db.dialect,
+        dialect="MySQL",
         top_k=state.get("room_count", 5)
     )
 
@@ -319,7 +346,7 @@ def check_query(state: RecommendState):
 -使用合适的列进行连接
 如果存在上述任何错误，请重写查询。如果没有错误，只需复制原始查询即可。
 在运行此检查之后，您将调用适当的工具来执行查询。
-        """.format(dialect=db.dialect)
+        """.format(dialect="MySQL")
     system_message = SystemMessage(content=check_query_system_prompt)
     # 将SQL当作用户消息传入进行检查
     tool_call = state["messages"][-1].tool_calls[0]
