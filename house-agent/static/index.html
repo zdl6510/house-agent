@@ -1,0 +1,1976 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能租房助手</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- 引入 marked 库用于解析 Markdown -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+        }
+
+        body {
+            background-color: #f8f9fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 0 30px;
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .search-box {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .search-input {
+            flex: 1;
+            min-width: 200px;
+            padding: 12px 18px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #2575fc;
+        }
+
+        .search-btn {
+            background: linear-gradient(to right, #6a11cb, #2575fc);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 30px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .search-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(37, 117, 252, 0.3);
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .feature-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s;
+            text-align: center;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .feature-icon {
+            font-size: 2.5rem;
+            color: #2575fc;
+            margin-bottom: 15px;
+        }
+
+        .feature-title {
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .feature-desc {
+            color: #666;
+            font-size: 0.95rem;
+        }
+
+        .house-list {
+            margin-bottom: 50px;
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            margin-bottom: 25px;
+            color: #333;
+            text-align: center;
+        }
+
+        .houses {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+        }
+
+        .house-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s;
+        }
+
+        .house-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .house-img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .house-info {
+            padding: 20px;
+        }
+
+        .house-title {
+            font-size: 1.2rem;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .house-location {
+            color: #666;
+            font-size: 0.95rem;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+        }
+
+        .house-location i {
+            margin-right: 5px;
+            color: #2575fc;
+        }
+
+        .house-price {
+            color: #ff6b6b;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        .house-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .tag {
+            background: #e9ecef;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            color: #555;
+        }
+
+        .chat-icon {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(to right, #6a11cb, #2575fc);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(37, 117, 252, 0.4);
+            z-index: 1000;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .chat-icon:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 20px rgba(37, 117, 252, 0.5);
+        }
+
+        .chat-container {
+            position: fixed;
+            bottom: 100px;
+            right: 30px;
+            width: 450px;
+            height: 600px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            z-index: 1001;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .chat-header {
+            background: linear-gradient(to right, #6a11cb, #2575fc);
+            color: white;
+            padding: 20px 25px;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 1.1rem;
+        }
+
+        .close-chat {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 25px;
+            overflow-y: auto;
+            background-color: #f9f9f9;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .message {
+            margin-bottom: 18px;
+            max-width: 85%;
+            clear: both;
+            word-wrap: break-word;
+        }
+
+        .user-message {
+            background: linear-gradient(to right, #6a11cb, #2575fc);
+            color: white;
+            padding: 12px 18px;
+            border-radius: 18px 18px 0 18px;
+            align-self: flex-end;
+        }
+
+        .ai-message {
+            background: white;
+            color: #333;
+            padding: 12px 18px;
+            border-radius: 18px 18px 18px 0;
+            border: 1px solid #e9ecef;
+            align-self: flex-start;
+        }
+
+        .process-message {
+            background: #f5f5f5;
+            color: #666;
+            padding: 12px 18px;
+            border-radius: 18px 18px 18px 0;
+            border: 1px solid #e0e0e0;
+            align-self: flex-start;
+            margin-bottom: 18px;
+            font-size: 0.9rem;
+            max-width: 85%;
+        }
+
+        .think-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 8px;
+        }
+
+        .think-title {
+            font-weight: 600;
+            color: #555;
+        }
+
+        .think-toggle {
+            background: none;
+            border: none;
+            color: #777;
+            cursor: pointer;
+            font-size: 0.8rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+
+        .think-toggle:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+
+        .think-content {
+            white-space: pre-line;
+            overflow: visible;
+            /* 改为 visible 而不是 auto */
+            transition: max-height 0.3s ease-out;
+            max-height: none;
+            /* 移除固定高度限制 */
+        }
+
+        .think-content.collapsed {
+            max-height: 0;
+            overflow: hidden;
+        }
+
+        .chat-input-area {
+            border-top: 1px solid #e9ecef;
+            padding: 18px;
+            display: flex;
+            gap: 12px;
+            background: white;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 14px 18px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .chat-input:focus {
+            outline: none;
+            border-color: #2575fc;
+        }
+
+        .send-btn {
+            background: linear-gradient(to right, #6a11cb, #2575fc);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 0 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.3s;
+            font-size: 1rem;
+        }
+
+        .send-btn:hover {
+            opacity: 0.9;
+        }
+
+        /* Markdown 样式支持 */
+        .ai-message h1,
+        .ai-message h2,
+        .ai-message h3 {
+            margin-top: 0.5em;
+            margin-bottom: 0.3em;
+            font-weight: 600;
+        }
+
+        .ai-message p {
+            margin-bottom: 0.8em;
+        }
+
+        .ai-message ul,
+        .ai-message ol {
+            padding-left: 20px;
+            margin-bottom: 0.8em;
+        }
+
+        .ai-message li {
+            margin-bottom: 0.3em;
+        }
+
+        .ai-message strong {
+            font-weight: 600;
+        }
+
+        .ai-message em {
+            font-style: italic;
+        }
+
+        .ai-message code {
+            background-color: #f5f5f5;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+
+        .ai-message pre {
+            background-color: #f5f5f5;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+            margin-bottom: 0.8em;
+        }
+
+        .ai-message pre code {
+            background-color: transparent;
+            padding: 0;
+        }
+
+        .ai-message blockquote {
+            border-left: 4px solid #2575fc;
+            padding-left: 12px;
+            color: #666;
+            margin-left: 0;
+            margin-bottom: 0.8em;
+        }
+
+        .typing-dots {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #999;
+            margin: 0 2px;
+            animation: typing 1.4s infinite both;
+        }
+
+        .typing-dots:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dots:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typing {
+
+            0%,
+            60%,
+            100% {
+                transform: translateY(0);
+            }
+
+            30% {
+                transform: translateY(-5px);
+            }
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px 0;
+            color: #666;
+            font-size: 0.9rem;
+            border-top: 1px solid #e9ecef;
+            margin-top: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .chat-container {
+                width: 92%;
+                right: 4%;
+                height: 75vh;
+                bottom: 80px;
+            }
+
+            .chat-icon {
+                bottom: 20px;
+                right: 20px;
+                width: 65px;
+                height: 65px;
+                font-size: 26px;
+            }
+
+            .houses {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+        }
+
+        @media (min-width: 1200px) {
+            .chat-container {
+                width: 500px;
+                height: 650px;
+            }
+        }
+
+        /* 2026 visual refresh */
+        :root {
+            --ink: #172321;
+            --muted: #66736f;
+            --line: #dde6e3;
+            --surface: #ffffff;
+            --canvas: #f3f7f5;
+            --primary: #087f68;
+            --primary-dark: #056653;
+            --accent: #e76244;
+            --shadow-sm: 0 8px 24px rgba(24, 52, 45, 0.08);
+            --shadow-lg: 0 24px 64px rgba(14, 40, 34, 0.2);
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            min-height: 100vh;
+            background: var(--canvas);
+            color: var(--ink);
+            font-family: Inter, "Microsoft YaHei", "PingFang SC", "Segoe UI", sans-serif;
+        }
+
+        button,
+        input {
+            font: inherit;
+        }
+
+        button:focus-visible,
+        input:focus-visible {
+            outline: 3px solid rgba(8, 127, 104, 0.22);
+            outline-offset: 2px;
+        }
+
+        .container {
+            max-width: 1240px;
+            padding: 24px;
+        }
+
+        header {
+            position: relative;
+            isolation: isolate;
+            min-height: 310px;
+            margin-bottom: -42px;
+            padding: 76px 8% 100px;
+            overflow: hidden;
+            text-align: left;
+            background-color: #123d36;
+            background-image: url("https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&w=1800&q=82");
+            background-position: center 52%;
+            background-size: cover;
+            background-blend-mode: multiply;
+            border-radius: 8px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        header::after {
+            content: "AI RENTAL CONCIERGE";
+            position: absolute;
+            right: 6%;
+            bottom: 26px;
+            z-index: -1;
+            color: rgba(255, 255, 255, 0.14);
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.18em;
+        }
+
+        h1 {
+            max-width: 700px;
+            margin-bottom: 16px;
+            font-size: 3.8rem;
+            line-height: 1.08;
+            letter-spacing: 0;
+        }
+
+        .subtitle {
+            max-width: 620px;
+            margin: 0;
+            color: rgba(255, 255, 255, 0.84);
+            font-size: 1.05rem;
+            line-height: 1.8;
+        }
+
+        .search-box {
+            position: relative;
+            z-index: 2;
+            align-items: center;
+            justify-content: stretch;
+            margin: 0 5% 42px;
+            padding: 18px;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.98);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            border-radius: 8px;
+            box-shadow: 0 18px 45px rgba(17, 46, 40, 0.16);
+        }
+
+        .search-input {
+            min-width: 180px;
+            height: 48px;
+            padding: 0 15px;
+            color: var(--ink);
+            background: #f7faf9;
+            border: 1px solid var(--line);
+            border-radius: 6px;
+            transition: border-color 0.2s, background-color 0.2s, box-shadow 0.2s;
+        }
+
+        .search-input:focus {
+            background: #fff;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(8, 127, 104, 0.1);
+        }
+
+        .search-btn {
+            min-height: 48px;
+            padding: 0 24px;
+            background: var(--primary);
+            border-radius: 6px;
+            box-shadow: none;
+            transition: background-color 0.2s, transform 0.2s, box-shadow 0.2s;
+        }
+
+        .search-btn::before {
+            content: "\f002";
+            margin-right: 9px;
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+        }
+
+        .search-btn:hover {
+            background: var(--primary-dark);
+            box-shadow: 0 8px 18px rgba(8, 127, 104, 0.22);
+        }
+
+        .features {
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1px;
+            margin: 0 0 64px;
+            overflow: hidden;
+            background: var(--line);
+            border: 1px solid var(--line);
+            border-radius: 8px;
+        }
+
+        .feature-card {
+            display: grid;
+            grid-template-columns: 46px 1fr;
+            column-gap: 16px;
+            align-items: center;
+            padding: 26px;
+            text-align: left;
+            border-radius: 0;
+            box-shadow: none;
+        }
+
+        .feature-card:hover {
+            transform: none;
+            background: #fbfdfc;
+        }
+
+        .feature-icon {
+            grid-row: 1 / span 2;
+            display: grid;
+            width: 46px;
+            height: 46px;
+            place-items: center;
+            margin: 0;
+            color: var(--primary);
+            background: #e8f4f1;
+            border-radius: 50%;
+            font-size: 1.2rem;
+        }
+
+        .feature-title {
+            margin: 0 0 4px;
+            color: var(--ink);
+            font-size: 1.02rem;
+        }
+
+        .feature-desc {
+            color: var(--muted);
+            line-height: 1.65;
+        }
+
+        .house-list {
+            margin-bottom: 64px;
+        }
+
+        .section-title {
+            margin-bottom: 24px;
+            color: var(--ink);
+            text-align: left;
+            font-size: 1.65rem;
+        }
+
+        .section-title::after {
+            content: "精选真实房源";
+            margin-left: 14px;
+            color: var(--muted);
+            font-size: 0.88rem;
+            font-weight: 400;
+        }
+
+        .houses {
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .house-card {
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            box-shadow: none;
+            transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s;
+        }
+
+        .house-card:hover {
+            transform: translateY(-4px);
+            border-color: #c4d6d1;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .house-img {
+            height: 220px;
+            transition: transform 0.4s;
+        }
+
+        .house-card:hover .house-img {
+            transform: scale(1.025);
+        }
+
+        .catalog-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 20px; }
+        .catalog-toolbar .section-title { margin-bottom: 0; }
+        .catalog-status { color: var(--muted); font-size: 0.9rem; }
+        .catalog-status.error { color: #b34132; }
+        .house-card { position: relative; }
+        .favorite-btn { position: absolute; top: 12px; right: 12px; z-index: 2; display: grid; width: 38px; height: 38px; place-items: center; color: #344b45; background: rgba(255,255,255,.92); border: 0; border-radius: 50%; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,.12); }
+        .favorite-btn.active { color: #e76244; }
+        .house-actions { display: flex; gap: 8px; margin-top: 18px; }
+        .house-action { flex: 1; padding: 9px 12px; color: var(--primary); background: #fff; border: 1px solid #b9d4cd; border-radius: 5px; cursor: pointer; }
+        .house-action.primary { color: #fff; background: var(--primary); border-color: var(--primary); }
+        .catalog-empty { grid-column: 1 / -1; padding: 52px 24px; color: var(--muted); text-align: center; background: #fff; border: 1px dashed #c6d5d1; border-radius: 8px; }
+        .house-card.skeleton { min-height: 390px; background: linear-gradient(100deg,#edf2f0 30%,#f8faf9 50%,#edf2f0 70%); background-size: 300% 100%; animation: shimmer 1.4s infinite; }
+        @keyframes shimmer { to { background-position-x: -150%; } }
+
+        .house-info {
+            position: relative;
+            padding: 20px;
+            background: var(--surface);
+        }
+
+        .house-title {
+            color: var(--ink);
+            line-height: 1.45;
+        }
+
+        .house-location {
+            color: var(--muted);
+        }
+
+        .house-location i {
+            color: var(--primary);
+        }
+
+        .house-price {
+            color: var(--accent);
+            font-size: 1.35rem;
+        }
+
+        .tag {
+            padding: 4px 9px;
+            color: #48615b;
+            background: #eef4f2;
+            border-radius: 4px;
+        }
+
+        footer {
+            color: var(--muted);
+            border-color: var(--line);
+        }
+
+        .chat-icon {
+            width: 58px;
+            height: 58px;
+            background: var(--primary);
+            border: 3px solid rgba(255, 255, 255, 0.9);
+            box-shadow: 0 12px 30px rgba(8, 77, 64, 0.3);
+            font-size: 21px;
+            transition: transform 0.2s, background-color 0.2s, box-shadow 0.2s;
+        }
+
+        .chat-icon::after {
+            content: "";
+            position: absolute;
+            top: 2px;
+            right: 1px;
+            width: 10px;
+            height: 10px;
+            background: #65d184;
+            border: 2px solid #fff;
+            border-radius: 50%;
+        }
+
+        .chat-icon:hover {
+            transform: translateY(-3px);
+            background: var(--primary-dark);
+            box-shadow: 0 16px 32px rgba(8, 77, 64, 0.36);
+        }
+
+        .chat-container {
+            width: min(420px, calc(100vw - 32px));
+            height: min(620px, calc(100vh - 120px));
+            min-height: min(420px, calc(100vh - 16px));
+            background: var(--surface);
+            border: 1px solid rgba(17, 58, 50, 0.12);
+            border-radius: 8px;
+            box-shadow: var(--shadow-lg);
+            animation: chatEnter 0.24s ease-out;
+        }
+
+        .chat-container.is-dragging {
+            user-select: none;
+            box-shadow: 0 28px 72px rgba(14, 40, 34, 0.28);
+        }
+
+        .chat-container.is-resizing {
+            user-select: none;
+            box-shadow: 0 28px 72px rgba(14, 40, 34, 0.28);
+        }
+
+        .resize-handle {
+            position: absolute;
+            z-index: 10;
+            background: transparent;
+            touch-action: none;
+            transition: background-color 0.15s;
+        }
+
+        .resize-handle:hover,
+        .resize-handle:active {
+            background: rgba(8, 127, 104, 0.12);
+        }
+
+        .resize-handle[data-resize="n"],
+        .resize-handle[data-resize="s"] {
+            left: 12px;
+            width: calc(100% - 24px);
+            height: 8px;
+            cursor: ns-resize;
+        }
+
+        .resize-handle[data-resize="n"] { top: 0; }
+        .resize-handle[data-resize="s"] { bottom: 0; }
+
+        .resize-handle[data-resize="e"],
+        .resize-handle[data-resize="w"] {
+            top: 12px;
+            width: 8px;
+            height: calc(100% - 24px);
+            cursor: ew-resize;
+        }
+
+        .resize-handle[data-resize="e"] { right: 0; }
+        .resize-handle[data-resize="w"] { left: 0; }
+
+        .resize-handle[data-resize="ne"],
+        .resize-handle[data-resize="nw"],
+        .resize-handle[data-resize="se"],
+        .resize-handle[data-resize="sw"] {
+            width: 16px;
+            height: 16px;
+        }
+
+        .resize-handle[data-resize="ne"] { top: 0; right: 0; cursor: nesw-resize; }
+        .resize-handle[data-resize="nw"] { top: 0; left: 0; cursor: nwse-resize; }
+        .resize-handle[data-resize="se"] { right: 0; bottom: 0; cursor: nwse-resize; }
+        .resize-handle[data-resize="sw"] { left: 0; bottom: 0; cursor: nesw-resize; }
+
+        .resize-handle[data-resize="se"]::after {
+            content: "";
+            position: absolute;
+            right: 3px;
+            bottom: 3px;
+            width: 6px;
+            height: 6px;
+            border-right: 2px solid rgba(8, 127, 104, 0.55);
+            border-bottom: 2px solid rgba(8, 127, 104, 0.55);
+        }
+
+        @keyframes chatEnter {
+            from { opacity: 0; transform: translateY(10px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .chat-header {
+            min-height: 76px;
+            padding: 14px 16px;
+            background: #123d36;
+            cursor: grab;
+            touch-action: none;
+        }
+
+        .chat-container.is-dragging .chat-header {
+            cursor: grabbing;
+        }
+
+        .chat-agent {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            min-width: 0;
+        }
+
+        .chat-agent-avatar {
+            display: grid;
+            flex: 0 0 auto;
+            width: 42px;
+            height: 42px;
+            place-items: center;
+            color: #123d36;
+            background: #dff3ed;
+            border-radius: 50%;
+        }
+
+        .chat-agent-copy {
+            display: grid;
+            line-height: 1.35;
+        }
+
+        .chat-agent-copy strong {
+            font-size: 0.98rem;
+        }
+
+        .chat-status {
+            color: rgba(255, 255, 255, 0.68);
+            font-size: 0.76rem;
+            font-weight: 400;
+        }
+
+        .chat-status::before {
+            content: "";
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            margin-right: 6px;
+            background: #65d184;
+            border-radius: 50%;
+            vertical-align: 1px;
+        }
+
+        .close-chat {
+            display: grid;
+            width: 36px;
+            height: 36px;
+            place-items: center;
+            padding: 0;
+            border-radius: 50%;
+            transition: background-color 0.2s;
+        }
+
+        .close-chat:hover {
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        .chat-messages {
+            gap: 6px;
+            padding: 22px 18px;
+            background: #f3f7f5;
+            scrollbar-color: #becdc8 transparent;
+            scrollbar-width: thin;
+        }
+
+        .message {
+            max-width: 86%;
+            margin-bottom: 10px;
+            font-size: 0.93rem;
+            line-height: 1.65;
+        }
+
+        .user-message {
+            padding: 11px 15px;
+            background: var(--primary);
+            border-radius: 14px 14px 4px 14px;
+            box-shadow: 0 4px 12px rgba(8, 127, 104, 0.16);
+        }
+
+        .ai-message {
+            padding: 11px 15px;
+            color: #293a36;
+            border-color: var(--line);
+            border-radius: 14px 14px 14px 4px;
+            box-shadow: 0 3px 10px rgba(23, 52, 45, 0.04);
+        }
+
+        .ai-message p:last-child {
+            margin-bottom: 0;
+        }
+
+        .process-message {
+            padding: 11px 14px;
+            color: var(--muted);
+            background: #eaf1ef;
+            border-color: #d4dfdc;
+            border-radius: 8px;
+        }
+
+        .chat-input-area {
+            align-items: center;
+            padding: 12px;
+            gap: 8px;
+            border-color: var(--line);
+        }
+
+        .chat-input {
+            min-width: 0;
+            height: 46px;
+            padding: 0 14px;
+            background: #f6f9f8;
+            border: 1px solid var(--line);
+            border-radius: 6px;
+        }
+
+        .chat-input:focus {
+            background: #fff;
+            border-color: var(--primary);
+        }
+
+        .send-btn {
+            display: grid;
+            flex: 0 0 auto;
+            width: 46px;
+            height: 46px;
+            place-items: center;
+            padding: 0;
+            background: var(--primary);
+            border-radius: 6px;
+            font-size: 0;
+            transition: background-color 0.2s, transform 0.2s;
+        }
+
+        .send-btn::before {
+            content: "\f1d8";
+            font-family: "Font Awesome 6 Free";
+            font-size: 1rem;
+            font-weight: 900;
+        }
+
+        .send-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+
+        @media (max-width: 900px) {
+            .features,
+            .houses {
+                grid-template-columns: 1fr;
+            }
+
+            .feature-card {
+                padding: 22px;
+            }
+
+            .house-img {
+                height: min(280px, 55vw);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 12px;
+            }
+
+            header {
+                min-height: 270px;
+                margin-bottom: -30px;
+                padding: 52px 24px 76px;
+            }
+
+            h1 {
+                font-size: 2.35rem;
+            }
+
+            .subtitle {
+                font-size: 0.95rem;
+            }
+
+            .search-box {
+                margin: 0 10px 34px;
+                padding: 12px;
+            }
+
+            .search-input,
+            .search-btn {
+                flex-basis: 100%;
+                width: 100%;
+            }
+
+            .chat-icon {
+                width: 56px;
+                height: 56px;
+                font-size: 20px;
+            }
+
+            .chat-container {
+                right: 12px;
+                bottom: 86px;
+                width: calc(100vw - 24px);
+                height: min(72vh, 620px);
+                min-height: min(390px, calc(100vh - 16px));
+            }
+
+            .chat-header {
+                min-height: 68px;
+                padding: 10px 12px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                scroll-behavior: auto !important;
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>智能租房助手</h1>
+            <p class="subtitle">AI智能推荐，快速找到心仪房源。只需描述您的需求，智能助手将为您匹配最合适的租房选项</p>
+        </header>
+
+        <div class="search-box">
+            <input type="text" class="search-input" id="locationInput" placeholder="输入城市、区域或小区名称">
+            <input type="text" class="search-input" id="budgetInput" placeholder="租金预算（元/月）">
+            <input type="text" class="search-input" id="layoutInput" placeholder="户型需求（如：1室1厅）">
+            <button class="search-btn" id="searchBtn">搜索房源</button>
+        </div>
+
+        <div class="features">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <h3 class="feature-title">AI智能推荐</h3>
+                <p class="feature-desc">基于您的需求，智能匹配最合适的房源，节省筛选时间</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-database"></i>
+                </div>
+                <h3 class="feature-title">海量真实房源</h3>
+                <p class="feature-desc">覆盖全国主要城市，实时更新，确保信息准确可靠</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-comments"></i>
+                </div>
+                <h3 class="feature-title">智能对话咨询</h3>
+                <p class="feature-desc">通过自然对话理解您的需求，提供个性化租房建议</p>
+            </div>
+        </div>
+
+        <div class="house-list">
+            <div class="catalog-toolbar">
+                <h2 class="section-title">推荐房源</h2>
+                <span class="catalog-status" id="catalogStatus" role="status" aria-live="polite">正在连接房源数据库…</span>
+            </div>
+            <div class="houses" id="houses" aria-busy="true">
+                <div class="house-card skeleton"></div>
+                <div class="house-card skeleton"></div>
+                <div class="house-card skeleton"></div>
+            </div>
+        </div>
+
+        <footer>
+            <p>© 智能租房助手 | 提供AI驱动的智能租房推荐服务</p>
+        </footer>
+    </div>
+
+    <!-- 聊天图标 -->
+    <div class="chat-icon" id="chatIcon" role="button" tabindex="0" aria-label="打开智能客服" aria-expanded="false">
+        <i class="fas fa-comment-dots"></i>
+    </div>
+
+    <!-- 聊天容器 -->
+    <div class="chat-container" id="chatContainer">
+        <div class="resize-handle" data-resize="n" title="向上缩放"></div>
+        <div class="resize-handle" data-resize="s" title="向下缩放"></div>
+        <div class="resize-handle" data-resize="e" title="向右缩放"></div>
+        <div class="resize-handle" data-resize="w" title="向左缩放"></div>
+        <div class="resize-handle" data-resize="ne" title="缩放窗口"></div>
+        <div class="resize-handle" data-resize="nw" title="缩放窗口"></div>
+        <div class="resize-handle" data-resize="se" title="缩放窗口"></div>
+        <div class="resize-handle" data-resize="sw" title="缩放窗口"></div>
+        <div class="chat-header" id="chatHeader" title="按住拖动窗口">
+            <div class="chat-agent">
+                <div class="chat-agent-avatar"><i class="fas fa-robot"></i></div>
+                <div class="chat-agent-copy">
+                    <strong>租房智能助手</strong>
+                    <span class="chat-status">在线，为您智能找房</span>
+                </div>
+            </div>
+            <button class="close-chat" id="closeChat" aria-label="关闭客服窗口" title="关闭">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="chat-messages" id="chatMessages">
+            <div class="message ai-message">
+                您好！我是租房智能助手，可以帮助您寻找合适的房源。请告诉我您的需求，例如：城市、预算等。
+            </div>
+        </div>
+        <div class="chat-input-area">
+            <input type="text" class="chat-input" id="chatInput" placeholder="输入您的租房需求...">
+            <button class="send-btn" id="sendBtn" aria-label="发送消息" title="发送消息">发送</button>
+        </div>
+    </div>
+
+    <script>
+        // ==================== 配置区 ====================
+        // LangGraph API 服务地址
+        //   - langgraph dev 默认: http://127.0.0.1:2024
+        //   - 自定义端口: http://127.0.0.1:<你的端口号>
+        //   - 远程服务器: http://<服务器IP>:<端口号>
+        const API_BASE_URL = "/api";
+        // ================================================
+
+        // 全局变量
+        let currentThreadId = null;
+        let isChatOpen = false;
+        let aiMessageElement = null;
+        let thinkElement = null;
+        let isSending = false;
+        let catalogRequest = null;
+
+        // 配置 marked
+        marked.setOptions({
+            breaks: true, // 换行符转换为 <br>
+            gfm: true, // 启用 GitHub Flavored Markdown
+        });
+
+        // DOM元素
+        const chatIcon = document.getElementById('chatIcon');
+        const chatContainer = document.getElementById('chatContainer');
+        const chatHeader = document.getElementById('chatHeader');
+        const resizeHandles = chatContainer.querySelectorAll('.resize-handle');
+        const closeChat = document.getElementById('closeChat');
+        const chatMessages = document.getElementById('chatMessages');
+        const chatInput = document.getElementById('chatInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const locationInput = document.getElementById('locationInput');
+        const budgetInput = document.getElementById('budgetInput');
+        const layoutInput = document.getElementById('layoutInput');
+        const searchBtn = document.getElementById('searchBtn');
+        const houses = document.getElementById('houses');
+        const catalogStatus = document.getElementById('catalogStatus');
+
+        const USER_ID_KEY = 'rental-assistant-user-id';
+        const FAVORITES_KEY = 'rental-assistant-favorites';
+        const userId = getOrCreateUserId();
+
+        function getOrCreateUserId() {
+            let id = localStorage.getItem(USER_ID_KEY);
+            if (!id) {
+                id = window.crypto?.randomUUID?.() || `web-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+                localStorage.setItem(USER_ID_KEY, id);
+            }
+            return id;
+        }
+
+        function safeMarkdown(markdown) {
+            const template = document.createElement('template');
+            template.innerHTML = marked.parse(String(markdown || ''));
+            template.content.querySelectorAll('script,style,iframe,object,embed,form').forEach(node => node.remove());
+            template.content.querySelectorAll('*').forEach(node => {
+                [...node.attributes].forEach(attr => {
+                    const value = attr.value.trim().toLowerCase();
+                    if (attr.name.startsWith('on') || ((attr.name === 'href' || attr.name === 'src') && value.startsWith('javascript:'))) node.removeAttribute(attr.name);
+                });
+            });
+            return template.innerHTML;
+        }
+
+        const CHAT_POSITION_KEY = 'rental-assistant-position';
+        const CHAT_VIEWPORT_MARGIN = 8;
+        const CHAT_MIN_WIDTH = 320;
+        const CHAT_MIN_HEIGHT = 360;
+        let dragState = null;
+        let resizeState = null;
+
+        function clamp(value, min, max) {
+            return Math.min(Math.max(value, min), max);
+        }
+
+        function setChatSize(width, height) {
+            const maxWidth = Math.max(1, window.innerWidth - CHAT_VIEWPORT_MARGIN * 2);
+            const maxHeight = Math.max(1, window.innerHeight - CHAT_VIEWPORT_MARGIN * 2);
+            const minWidth = Math.min(CHAT_MIN_WIDTH, maxWidth);
+            const minHeight = Math.min(CHAT_MIN_HEIGHT, maxHeight);
+
+            chatContainer.style.width = `${clamp(width, minWidth, maxWidth)}px`;
+            chatContainer.style.height = `${clamp(height, minHeight, maxHeight)}px`;
+        }
+
+        function setChatPosition(left, top) {
+            const maxLeft = Math.max(CHAT_VIEWPORT_MARGIN,
+                window.innerWidth - chatContainer.offsetWidth - CHAT_VIEWPORT_MARGIN);
+            const maxTop = Math.max(CHAT_VIEWPORT_MARGIN,
+                window.innerHeight - chatContainer.offsetHeight - CHAT_VIEWPORT_MARGIN);
+
+            chatContainer.style.left = `${Math.min(Math.max(left, CHAT_VIEWPORT_MARGIN), maxLeft)}px`;
+            chatContainer.style.top = `${Math.min(Math.max(top, CHAT_VIEWPORT_MARGIN), maxTop)}px`;
+            chatContainer.style.right = 'auto';
+            chatContainer.style.bottom = 'auto';
+        }
+
+        function saveChatPosition() {
+            try {
+                const rect = chatContainer.getBoundingClientRect();
+                localStorage.setItem(CHAT_POSITION_KEY, JSON.stringify({
+                    left: rect.left,
+                    top: rect.top,
+                    width: rect.width,
+                    height: rect.height
+                }));
+            } catch (error) {
+                console.debug('Unable to save chat position:', error);
+            }
+        }
+
+        function restoreChatPosition() {
+            try {
+                const savedPosition = JSON.parse(localStorage.getItem(CHAT_POSITION_KEY));
+                if (Number.isFinite(savedPosition?.width) && Number.isFinite(savedPosition?.height)) {
+                    setChatSize(savedPosition.width, savedPosition.height);
+                }
+                if (Number.isFinite(savedPosition?.left) && Number.isFinite(savedPosition?.top)) {
+                    setChatPosition(savedPosition.left, savedPosition.top);
+                }
+            } catch (error) {
+                localStorage.removeItem(CHAT_POSITION_KEY);
+            }
+        }
+
+        function keepChatInViewport() {
+            if (!isChatOpen || !chatContainer.style.left) return;
+            const rect = chatContainer.getBoundingClientRect();
+            setChatSize(rect.width, rect.height);
+            setChatPosition(rect.left, rect.top);
+            saveChatPosition();
+        }
+
+        chatHeader.addEventListener('pointerdown', (event) => {
+            if (event.button !== 0 || event.target.closest('button, input, a')) return;
+
+            const rect = chatContainer.getBoundingClientRect();
+            dragState = {
+                pointerId: event.pointerId,
+                offsetX: event.clientX - rect.left,
+                offsetY: event.clientY - rect.top
+            };
+            setChatPosition(rect.left, rect.top);
+            chatContainer.classList.add('is-dragging');
+            chatHeader.setPointerCapture(event.pointerId);
+            event.preventDefault();
+        });
+
+        chatHeader.addEventListener('pointermove', (event) => {
+            if (!dragState || event.pointerId !== dragState.pointerId) return;
+            setChatPosition(
+                event.clientX - dragState.offsetX,
+                event.clientY - dragState.offsetY
+            );
+        });
+
+        function finishChatDrag(event) {
+            if (!dragState || event.pointerId !== dragState.pointerId) return;
+            dragState = null;
+            chatContainer.classList.remove('is-dragging');
+            saveChatPosition();
+        }
+
+        chatHeader.addEventListener('pointerup', finishChatDrag);
+        chatHeader.addEventListener('pointercancel', finishChatDrag);
+
+        resizeHandles.forEach((handle) => {
+            handle.addEventListener('pointerdown', (event) => {
+                if (event.button !== 0) return;
+
+                const rect = chatContainer.getBoundingClientRect();
+                resizeState = {
+                    pointerId: event.pointerId,
+                    handle,
+                    direction: handle.dataset.resize,
+                    startX: event.clientX,
+                    startY: event.clientY,
+                    left: rect.left,
+                    top: rect.top,
+                    width: rect.width,
+                    height: rect.height
+                };
+
+                setChatPosition(rect.left, rect.top);
+                setChatSize(rect.width, rect.height);
+                chatContainer.classList.add('is-resizing');
+                handle.setPointerCapture(event.pointerId);
+                event.preventDefault();
+                event.stopPropagation();
+            });
+
+            handle.addEventListener('pointermove', (event) => {
+                if (!resizeState || event.pointerId !== resizeState.pointerId) return;
+
+                const state = resizeState;
+                const direction = state.direction;
+                const deltaX = event.clientX - state.startX;
+                const deltaY = event.clientY - state.startY;
+                const right = state.left + state.width;
+                const bottom = state.top + state.height;
+                const viewportMaxWidth = window.innerWidth - CHAT_VIEWPORT_MARGIN * 2;
+                const viewportMaxHeight = window.innerHeight - CHAT_VIEWPORT_MARGIN * 2;
+                const minWidth = Math.min(CHAT_MIN_WIDTH, viewportMaxWidth);
+                const minHeight = Math.min(CHAT_MIN_HEIGHT, viewportMaxHeight);
+
+                let left = state.left;
+                let top = state.top;
+                let width = state.width;
+                let height = state.height;
+
+                if (direction.includes('e')) {
+                    const maxWidth = window.innerWidth - CHAT_VIEWPORT_MARGIN - state.left;
+                    width = clamp(state.width + deltaX, minWidth, maxWidth);
+                }
+                if (direction.includes('w')) {
+                    const maxWidth = right - CHAT_VIEWPORT_MARGIN;
+                    width = clamp(state.width - deltaX, minWidth, maxWidth);
+                    left = right - width;
+                }
+                if (direction.includes('s')) {
+                    const maxHeight = window.innerHeight - CHAT_VIEWPORT_MARGIN - state.top;
+                    height = clamp(state.height + deltaY, minHeight, maxHeight);
+                }
+                if (direction.includes('n')) {
+                    const maxHeight = bottom - CHAT_VIEWPORT_MARGIN;
+                    height = clamp(state.height - deltaY, minHeight, maxHeight);
+                    top = bottom - height;
+                }
+
+                chatContainer.style.left = `${left}px`;
+                chatContainer.style.top = `${top}px`;
+                chatContainer.style.width = `${width}px`;
+                chatContainer.style.height = `${height}px`;
+            });
+
+            const finishResize = (event) => {
+                if (!resizeState || event.pointerId !== resizeState.pointerId) return;
+                resizeState = null;
+                chatContainer.classList.remove('is-resizing');
+                saveChatPosition();
+            };
+
+            handle.addEventListener('pointerup', finishResize);
+            handle.addEventListener('pointercancel', finishResize);
+        });
+
+        window.addEventListener('resize', keepChatInViewport);
+
+        // 打开聊天窗口
+        async function openChatPanel() {
+            if (!isChatOpen) {
+                chatContainer.style.display = 'flex';
+                isChatOpen = true;
+                chatIcon.setAttribute('aria-expanded', 'true');
+                restoreChatPosition();
+            }
+
+            // 如果没有会话，则创建一个
+            if (!currentThreadId) {
+                await createThread();
+            }
+
+            // 滚动到底部
+            setTimeout(() => {
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }, 100);
+        }
+
+        chatIcon.addEventListener('click', openChatPanel);
+        chatIcon.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                openChatPanel();
+            }
+        });
+
+        // 关闭聊天窗口
+        closeChat.addEventListener('click', () => {
+            chatContainer.style.display = 'none';
+            isChatOpen = false;
+            chatIcon.setAttribute('aria-expanded', 'false');
+            chatIcon.focus();
+        });
+
+        // 发送消息
+        sendBtn.addEventListener('click', sendMessage);
+        chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+        searchBtn.addEventListener('click', handleHouseSearch);
+        [locationInput, budgetInput, layoutInput].forEach((input) => {
+            input.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    handleHouseSearch();
+                }
+            });
+        });
+
+        // 创建会话
+        async function handleHouseSearch() {
+            await loadCatalog({
+                location: locationInput.value.trim(),
+                budget_max: parseBudget(budgetInput.value),
+                layout: layoutInput.value.trim(),
+                limit: 12
+            });
+        }
+
+        function parseBudget(value) {
+            const numbers = String(value || '').match(/\d+(?:\.\d+)?/g);
+            return numbers?.length ? Number(numbers[numbers.length - 1]) : null;
+        }
+
+        const fallbackImages = [
+            'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=800&q=80',
+            'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80',
+            'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=800&q=80'
+        ];
+
+        function loadFavorites() {
+            try { return new Set(JSON.parse(localStorage.getItem(FAVORITES_KEY) || '[]')); }
+            catch { return new Set(); }
+        }
+
+        function renderCatalog(listings) {
+            houses.replaceChildren();
+            houses.setAttribute('aria-busy', 'false');
+            if (!listings.length) {
+                const empty = document.createElement('div');
+                empty.className = 'catalog-empty';
+                empty.textContent = '没有找到符合条件的房源，您可以放宽筛选条件后重试。';
+                houses.appendChild(empty);
+                return;
+            }
+            const favorites = loadFavorites();
+            listings.forEach((listing, index) => {
+                const card = document.createElement('article');
+                card.className = 'house-card';
+                const image = document.createElement('img');
+                image.className = 'house-img'; image.alt = listing.title || '房源图片'; image.loading = 'lazy';
+                image.src = /^https?:\/\//i.test(listing.image || '') ? listing.image : fallbackImages[index % fallbackImages.length];
+                image.onerror = () => { image.onerror = null; image.src = fallbackImages[index % fallbackImages.length]; };
+                const favorite = document.createElement('button');
+                favorite.className = `favorite-btn${favorites.has(String(listing.id)) ? ' active' : ''}`;
+                favorite.type = 'button'; favorite.title = '收藏房源'; favorite.setAttribute('aria-label', '收藏房源');
+                favorite.innerHTML = '<i class="fas fa-heart"></i>';
+                favorite.addEventListener('click', () => {
+                    const saved = loadFavorites(); const id = String(listing.id);
+                    saved.has(id) ? saved.delete(id) : saved.add(id);
+                    localStorage.setItem(FAVORITES_KEY, JSON.stringify([...saved]));
+                    favorite.classList.toggle('active', saved.has(id));
+                });
+                const info = document.createElement('div'); info.className = 'house-info';
+                const title = document.createElement('h3'); title.className = 'house-title'; title.textContent = listing.title || '优选房源';
+                const location = document.createElement('div'); location.className = 'house-location';
+                location.textContent = [listing.city, listing.region, listing.address].filter(Boolean).join(' · ') || '位置待确认';
+                const price = document.createElement('div'); price.className = 'house-price';
+                price.textContent = Number.isFinite(listing.price) ? `¥${listing.price.toLocaleString('zh-CN')}/月` : '价格面议';
+                const tags = document.createElement('div'); tags.className = 'house-tags';
+                (listing.tags || []).forEach(value => { const tag = document.createElement('span'); tag.className = 'tag'; tag.textContent = value; tags.appendChild(tag); });
+                const actions = document.createElement('div'); actions.className = 'house-actions';
+                const consult = document.createElement('button'); consult.className = 'house-action'; consult.textContent = '咨询详情'; consult.type = 'button';
+                consult.addEventListener('click', async () => { await openChatPanel(); await sendMessage(`请介绍一下房源“${listing.title}”的详细信息。`); });
+                const reserve = document.createElement('button'); reserve.className = 'house-action primary'; reserve.textContent = '预约看房'; reserve.type = 'button';
+                reserve.addEventListener('click', async () => { await openChatPanel(); await sendMessage(`我想预订房源“${listing.title}”。`); });
+                actions.append(consult, reserve); info.append(title, location, price, tags, actions); card.append(image, favorite, info); houses.appendChild(card);
+            });
+        }
+
+        async function loadCatalog(filters = {}) {
+            catalogRequest?.abort();
+            const controller = new AbortController();
+            catalogRequest = controller;
+            const timeout = setTimeout(() => controller.abort(), 12000);
+            houses.setAttribute('aria-busy', 'true'); catalogStatus.className = 'catalog-status';
+            catalogStatus.textContent = '正在读取真实房源…'; searchBtn.disabled = true;
+            try {
+                const response = await fetch(`${API_BASE_URL}/runs/wait`, {
+                    method: 'POST', headers: {'Content-Type': 'application/json'}, signal: controller.signal,
+                    body: JSON.stringify({assistant_id: 'catalog_agent', input: {...filters, limit: filters.limit || 9}})
+                });
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                const data = await response.json();
+                renderCatalog(Array.isArray(data.listings) ? data.listings : []);
+                catalogStatus.textContent = data.error ? `${data.error}${data.stale ? '（当前展示最近缓存）' : ''}` : `已加载 ${data.total ?? data.listings?.length ?? 0} 套真实房源`;
+                catalogStatus.classList.toggle('error', Boolean(data.error));
+            } catch (error) {
+                if (catalogRequest !== controller) return;
+                renderCatalog([]); catalogStatus.className = 'catalog-status error';
+                catalogStatus.textContent = error.name === 'AbortError' ? '请求超时，请稍后重试' : '房源服务暂时不可用，请稍后重试';
+            } finally {
+                clearTimeout(timeout);
+                if (catalogRequest === controller) searchBtn.disabled = false;
+            }
+        }
+
+        function buildHouseSearchMessage() {
+            const location = locationInput.value.trim();
+            const budget = budgetInput.value.trim();
+            const layout = layoutInput.value.trim();
+
+            if (!location && !budget && !layout) {
+                return '';
+            }
+
+            const requirements = [];
+            if (location) {
+                requirements.push(`地点：${location}`);
+            }
+            if (budget) {
+                requirements.push(`预算：${budget} 元/月`);
+            }
+            if (layout) {
+                requirements.push(`户型：${layout}`);
+            }
+
+            return `我想找房源，${requirements.join('，')}。请根据这些需求帮我推荐合适的租房房源。`;
+        }
+
+        async function createThread() {
+            try {
+                const controller = new AbortController();
+                const timeout = setTimeout(() => controller.abort(), 10000);
+                const response = await fetch(`${API_BASE_URL}/threads`, {
+                    method: 'POST',
+                    signal: controller.signal,
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({})
+                });
+                clearTimeout(timeout);
+
+                if (!response.ok) {
+                    throw new Error(`服务器返回错误状态: ${response.status}`);
+                }
+
+                const data = await response.json();
+                currentThreadId = data.thread_id;
+                console.log('会话创建成功:', currentThreadId);
+                return true;
+
+            } catch (error) {
+                console.error('创建会话失败:', error);
+                // 显示连接错误提示
+                const errorMsg = document.createElement('div');
+                errorMsg.className = 'message ai-message';
+                errorMsg.style.color = '#e74c3c';
+                errorMsg.textContent = `⚠️ 无法连接到服务器 (${API_BASE_URL})，请确认：\n1. LangGraph 服务已启动\n2. 端口地址配置正确\n3. 网络连接正常`;
+                chatMessages.appendChild(errorMsg);
+                return false;
+            }
+        }
+
+        // 发送消息函数
+        async function sendMessage(messageOverride) {
+            const message = (typeof messageOverride === 'string' ? messageOverride : chatInput.value).trim();
+            if (!message || isSending) return;
+            if (!currentThreadId && !(await createThread())) return;
+            isSending = true;
+            sendBtn.disabled = true;
+            chatInput.disabled = true;
+
+            // 清空输入框
+            if (typeof messageOverride !== 'string') {
+                chatInput.value = '';
+            }
+
+            // 显示用户消息
+            const userMessageElement = document.createElement('div');
+            userMessageElement.className = 'message user-message';
+            userMessageElement.textContent = message;
+            chatMessages.appendChild(userMessageElement);
+
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+
+            try {
+                // 判断是否需要中断恢复
+                const messageElements = chatMessages.querySelectorAll('.message');
+                const isInterrupt = messageElements.length > 1
+                    && messageElements[messageElements.length - 2].id === '__interrupt__';
+                let requestBody;
+                if (isInterrupt) {
+                    // 中断恢复模式
+                    requestBody = {
+                        assistant_id: "house_agent",
+                        command: {
+                            resume: message
+                        },
+                        context: {
+                            user_id: userId
+                        },
+                        stream_mode: ["updates", "messages"],
+                        stream_subgraphs: true
+                    };
+                } else {
+                    // 正常模式
+                    requestBody = {
+                        assistant_id: "house_agent",
+                        input: {
+                            messages: [{ "role": "human", "content": message }]
+                        },
+                        context: {
+                            user_id: userId
+                        },
+                        stream_mode: ["updates", "messages"],
+                        stream_subgraphs: true
+                    };
+                }
+                // 发送请求到智能体
+                const response = await fetch(`${API_BASE_URL}/threads/${currentThreadId}/runs/stream`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                // 创建思考过程元素
+                thinkElement = document.createElement('div');
+                thinkElement.style.display = 'none';
+                thinkElement.className = 'process-message';
+
+                // 添加标题和切换按钮
+                const thinkHeader = document.createElement('div');
+                thinkHeader.className = 'think-header';
+
+                const thinkTitle = document.createElement('div');
+                thinkTitle.className = 'think-title';
+                thinkTitle.textContent = '思考过程';
+
+                const thinkToggle = document.createElement('button');
+                thinkToggle.className = 'think-toggle';
+                thinkToggle.innerHTML = '<i class="fas fa-chevron-down"></i>';
+                thinkToggle.setAttribute('title', '点击展开/收缩');
+
+                thinkHeader.appendChild(thinkTitle);
+                thinkHeader.appendChild(thinkToggle);
+
+                // 添加思考内容区域
+                const thinkContent = document.createElement('div');
+                thinkContent.className = 'think-content';
+
+                // 组装思考元素
+                thinkElement.appendChild(thinkHeader);
+                thinkElement.appendChild(thinkContent);
+                chatMessages.appendChild(thinkElement);
+
+                // 添加切换功能
+                thinkHeader.addEventListener('click', function () {
+                    thinkContent.classList.toggle('collapsed');
+                    const icon = thinkToggle.querySelector('i');
+                    if (thinkContent.classList.contains('collapsed')) {
+                        icon.className = 'fas fa-chevron-right';
+                    } else {
+                        icon.className = 'fas fa-chevron-down';
+                    }
+                });
+
+                // 读取流式响应
+                if (!response.body) throw new Error('服务器未返回可读取的数据流');
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let thinkContentText = '';
+                let aiMessageContent = '';
+                let startAI = false;
+                let interruptId = '';
+                let streamBuffer = '';
+                let currentType = '';
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+
+                    streamBuffer += decoder.decode(value, {stream: true});
+                    const lines = streamBuffer.split('\n');
+                    streamBuffer = lines.pop() || '';
+
+
+                    for (const line of lines) {
+                        if (line.startsWith('event: ')) {
+                            currentType = line.substring(7);
+                        }
+                        else if (line.startsWith('data: ')) {
+                            const dataStr = line.substring(6);
+                            if (dataStr.trim() === '') continue;
+                            try {
+                                const data = JSON.parse(dataStr);
+
+                                // 处理 updates 事件
+                                if (currentType.startsWith('updates')) {
+                                    if (Object.values(data).some(v => v && typeof v === 'object' && 'messages' in v)) {
+                                        // 去重：子图更新的state, 主图也会再更新一次。只输出子图内容
+                                        if (currentType === 'updates\r') {
+                                            continue;
+                                        }
+
+                                        // 提取所有消息
+                                        const messages = Object.values(data).flatMap(v => v.messages || []);
+                                        for (const msg of messages) {
+                                            if (!msg) continue;
+
+                                            // 工具调用
+                                            if (msg.type === 'ai' && msg.tool_calls && msg.tool_calls.length > 0) {
+                                                if (thinkElement.style.display === 'none') {
+                                                    thinkElement.style.display = 'block';
+                                                }
+                                                thinkContentText += '进行工具调用：';
+                                                for (const tool of msg.tool_calls) {
+                                                    thinkContentText += ` ${tool.name}`;
+                                                }
+                                                thinkContentText += '\n';
+                                                thinkContent.textContent = thinkContentText;
+                                                chatMessages.scrollTop = chatMessages.scrollHeight;
+                                            } else if (msg.type === 'tool' && msg.content) {
+                                                if (thinkElement.style.display === 'none') {
+                                                    thinkElement.style.display = 'block';
+                                                }
+                                                thinkContentText += '工具调用完成，结果如下：\n';
+                                                thinkContentText += msg.content + '\n';
+                                                thinkContent.textContent = thinkContentText;
+                                                chatMessages.scrollTop = chatMessages.scrollHeight;
+                                            }
+                                        }
+                                    } else if (data.__interrupt__ && interruptId !== data.__interrupt__[0].id) {
+                                        interruptMessageElement = document.createElement('div');
+                                        interruptMessageElement.className = 'message ai-message';
+                                        interruptMessageElement.id = '__interrupt__'
+                                        // 使用 marked 解析 Markdown
+                                        interruptMessageElement.innerHTML = safeMarkdown(data.__interrupt__[0].value);
+                                        chatMessages.appendChild(interruptMessageElement);
+                                        // 去重，会存在两个事件，如下：
+                                        // event: updates|reserve_graph:b9ec69e0-ce52-e030-c3d3-ccdba7555727
+                                        // data: {"__interrupt__":[{"value":"请输入要预定的房源名称","id":"a47e895827b56895a8fabbed0f7ffebe"}]}
+                                        // 
+                                        // event: updates
+                                        // data: {"__interrupt__":[{"value":"请输入要预定的房源名称","id":"a47e895827b56895a8fabbed0f7ffebe"}]}
+                                        interruptId = data.__interrupt__[0].id;
+                                        // 滚动到底部
+                                        chatMessages.scrollTop = chatMessages.scrollHeight;
+                                    }
+                                }
+                                // 处理 messages/metadata 事件，ai消息发送前的准备
+                                else if (currentType === 'messages/metadata\r') {
+                                    // 提取所有消息
+                                    const metadata = Object.values(data).map(v => v.metadata);
+                                    if (metadata[0] && (
+                                        metadata[0].langgraph_node === 'generate_query'
+                                        || metadata[0].langgraph_node === 'call_orders'
+                                        || metadata[0].langgraph_node === 'extend_node'
+                                        || metadata[0].langgraph_node === 'get_user_preferences'
+                                    )) {
+                                        startAI = true;
+                                        // 创建AI消息元素
+                                        if (!aiMessageElement || aiMessageElement.innerHTML.trim() !== '') {
+                                            aiMessageElement = document.createElement('div');
+                                            aiMessageElement.className = 'message ai-message';
+                                            chatMessages.appendChild(aiMessageElement);
+                                        }
+                                    } else {
+                                        startAI = false;
+                                    }
+                                }
+                                // 处理 messages/partial 事件
+                                else if (currentType === 'messages/partial\r') {
+                                    const messageData = data[0];
+                                    if (messageData.content && (messageData.type === 'ai') && startAI) {
+                                        // 更新AI消息内容
+                                        aiMessageContent = messageData.content;
+                                        // 使用 marked 解析 Markdown
+                                        aiMessageElement.innerHTML = safeMarkdown(aiMessageContent);
+                                        // 滚动到底部
+                                        chatMessages.scrollTop = chatMessages.scrollHeight;
+                                    }
+                                }
+                            } catch (e) {
+                                console.error('解析JSON失败:', e, line);
+                            }
+                        }
+                    }
+                }
+
+            } catch (error) {
+                console.error('发送消息失败:', error);
+
+                // 显示错误消息
+                const errorMessage = document.createElement('div');
+                errorMessage.className = 'message ai-message';
+                errorMessage.style.color = '#e74c3c';
+                if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+                    errorMessage.textContent = `⚠️ 无法连接到 ${API_BASE_URL}，请确认 LangGraph 服务已启动。`;
+                } else {
+                    errorMessage.textContent = `抱歉，处理您的请求时出现了错误：${error.message}`;
+                }
+                chatMessages.appendChild(errorMessage);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            } finally {
+                isSending = false;
+                sendBtn.disabled = false;
+                chatInput.disabled = false;
+                chatInput.focus();
+            }
+        }
+
+        // 页面加载完成后，预创建会话
+        window.addEventListener('load', () => {
+            loadCatalog({limit: 9});
+            // 延迟创建会话，避免页面加载时立即发起请求
+            setTimeout(() => {
+                createThread();
+            }, 1000);
+        });
+    </script>
+</body>
+
+</html>
