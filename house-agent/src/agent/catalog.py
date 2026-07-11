@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import json
-import os
 import threading
 import time
 from typing import Any
@@ -43,6 +42,7 @@ ALIASES = {
 
 _cache_lock = threading.Lock()
 _cache: dict[str, Any] = {"at": 0.0, "listings": []}
+CACHE_TTL_SECONDS = 60
 
 
 def _find_column(columns: list[str], field: str) -> str | None:
@@ -51,15 +51,12 @@ def _find_column(columns: list[str], field: str) -> str | None:
 
 
 def _select_table(connection) -> tuple[str, dict[str, str | None]]:
-    configured = os.getenv("HOUSE_TABLE")
     with connection.cursor() as cursor:
         cursor.execute("SHOW TABLES")
         tables = [next(iter(row.values())) for row in cursor.fetchall()]
 
         best: tuple[int, str, dict[str, str | None]] | None = None
         for table in tables:
-            if configured and table != configured:
-                continue
             cursor.execute(f"SHOW COLUMNS FROM {quote_identifier(table)}")
             columns = [row["Field"] for row in cursor.fetchall()]
             mapping = {field: _find_column(columns, field) for field in ALIASES}
@@ -158,10 +155,9 @@ def _query_catalog(state: CatalogState) -> list[dict[str, Any]]:
 def load_catalog(state: CatalogState) -> CatalogState:
     """Load real listings, serving the latest successful snapshot on outages."""
 
-    cache_ttl = int(os.getenv("HOUSE_CACHE_TTL", "60"))
     unfiltered = not any(state.get(key) not in (None, "") for key in ("location", "budget_max", "layout"))
     with _cache_lock:
-        if unfiltered and _cache["listings"] and time.monotonic() - _cache["at"] < cache_ttl:
+        if unfiltered and _cache["listings"] and time.monotonic() - _cache["at"] < CACHE_TTL_SECONDS:
             listings = list(_cache["listings"])
             return {"listings": listings, "total": len(listings), "stale": False, "error": None}
 

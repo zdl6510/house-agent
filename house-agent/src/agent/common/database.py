@@ -19,6 +19,11 @@ class DatabaseUnavailable(RuntimeError):
     """Raised when the configured housing database cannot be reached."""
 
 
+CONNECT_TIMEOUT_SECONDS = 5
+IO_TIMEOUT_SECONDS = 10
+MAX_QUERY_ROWS = 100
+
+
 def database_configured() -> bool:
     """Return whether all required MySQL environment variables are present."""
 
@@ -40,9 +45,9 @@ def mysql_connection() -> Iterator[Connection]:
             password=os.environ["DB_PASSWORD"],
             database=os.environ["DB_NAME"],
             charset="utf8mb4",
-            connect_timeout=int(os.getenv("DB_CONNECT_TIMEOUT", "5")),
-            read_timeout=int(os.getenv("DB_READ_TIMEOUT", "10")),
-            write_timeout=int(os.getenv("DB_WRITE_TIMEOUT", "10")),
+            connect_timeout=CONNECT_TIMEOUT_SECONDS,
+            read_timeout=IO_TIMEOUT_SECONDS,
+            write_timeout=IO_TIMEOUT_SECONDS,
             autocommit=True,
             cursorclass=pymysql.cursors.DictCursor,
         )
@@ -75,7 +80,7 @@ def execute_readonly(query: str, params: tuple[Any, ...] = ()) -> list[dict[str,
 
     with mysql_connection() as connection, connection.cursor() as cursor:
         cursor.execute(normalized, params)
-        rows = cursor.fetchmany(int(os.getenv("DB_MAX_ROWS", "100")))
+        rows = cursor.fetchmany(MAX_QUERY_ROWS)
         return list(rows)
 
 
