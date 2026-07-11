@@ -25,7 +25,7 @@ builder.add_edge("get_store_info", "identify_question")
 
 # 智能路由
 def router_message(state: State) -> Literal["recommended_graph", "reserve_graph", "extend_graph", "get_user_preferences"]:
-    user_intent = state["user_intent"]
+    user_intent = state.get("user_intent", "others")
     if user_intent == "recommend_house":
         return "recommended_graph"
     elif user_intent == "reserve_house":
@@ -44,8 +44,8 @@ builder.add_conditional_edges(
 # 路由1：推荐子图：根据用户中断信息决定后续是否继续预定
 builder.add_edge("recommended_graph", "need_reserve")
 def should_reserve(state: NeedReserveOutput):
-    reserve = state["reserve"]
-    if reserve == "需要":
+    reserve = str(state.get("reserve", "")).strip().lower()
+    if reserve in {"需要", "是", "好的", "好", "yes", "y"}:
         return "reserve_graph"
     else:
         return END

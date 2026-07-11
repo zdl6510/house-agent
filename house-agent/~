@@ -527,6 +527,752 @@
                 height: 650px;
             }
         }
+
+        /* 2026 visual refresh */
+        :root {
+            --ink: #172321;
+            --muted: #66736f;
+            --line: #dde6e3;
+            --surface: #ffffff;
+            --canvas: #f3f7f5;
+            --primary: #087f68;
+            --primary-dark: #056653;
+            --accent: #e76244;
+            --shadow-sm: 0 8px 24px rgba(24, 52, 45, 0.08);
+            --shadow-lg: 0 24px 64px rgba(14, 40, 34, 0.2);
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            min-height: 100vh;
+            background: var(--canvas);
+            color: var(--ink);
+            font-family: Inter, "Microsoft YaHei", "PingFang SC", "Segoe UI", sans-serif;
+        }
+
+        button,
+        input {
+            font: inherit;
+        }
+
+        button:focus-visible,
+        input:focus-visible {
+            outline: 3px solid rgba(8, 127, 104, 0.22);
+            outline-offset: 2px;
+        }
+
+        .container {
+            max-width: 1240px;
+            padding: 24px;
+        }
+
+        header {
+            position: relative;
+            isolation: isolate;
+            min-height: 310px;
+            margin-bottom: -42px;
+            padding: 76px 8% 100px;
+            overflow: hidden;
+            text-align: left;
+            background-color: #123d36;
+            background-image: url("https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&w=1800&q=82");
+            background-position: center 52%;
+            background-size: cover;
+            background-blend-mode: multiply;
+            border-radius: 8px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        header::after {
+            content: "AI RENTAL CONCIERGE";
+            position: absolute;
+            right: 6%;
+            bottom: 26px;
+            z-index: -1;
+            color: rgba(255, 255, 255, 0.14);
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.18em;
+        }
+
+        h1 {
+            max-width: 700px;
+            margin-bottom: 16px;
+            font-size: 3.8rem;
+            line-height: 1.08;
+            letter-spacing: 0;
+        }
+
+        .subtitle {
+            max-width: 620px;
+            margin: 0;
+            color: rgba(255, 255, 255, 0.84);
+            font-size: 1.05rem;
+            line-height: 1.8;
+        }
+
+        .search-box {
+            position: relative;
+            z-index: 2;
+            align-items: center;
+            justify-content: stretch;
+            margin: 0 5% 42px;
+            padding: 18px;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.98);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            border-radius: 8px;
+            box-shadow: 0 18px 45px rgba(17, 46, 40, 0.16);
+        }
+
+        .search-input {
+            min-width: 180px;
+            height: 48px;
+            padding: 0 15px;
+            color: var(--ink);
+            background: #f7faf9;
+            border: 1px solid var(--line);
+            border-radius: 6px;
+            transition: border-color 0.2s, background-color 0.2s, box-shadow 0.2s;
+        }
+
+        .search-input:focus {
+            background: #fff;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(8, 127, 104, 0.1);
+        }
+
+        .search-btn {
+            min-height: 48px;
+            padding: 0 24px;
+            background: var(--primary);
+            border-radius: 6px;
+            box-shadow: none;
+            transition: background-color 0.2s, transform 0.2s, box-shadow 0.2s;
+        }
+
+        .search-btn::before {
+            content: "\f002";
+            margin-right: 9px;
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+        }
+
+        .search-btn:hover {
+            background: var(--primary-dark);
+            box-shadow: 0 8px 18px rgba(8, 127, 104, 0.22);
+        }
+
+        .features {
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1px;
+            margin: 0 0 64px;
+            overflow: hidden;
+            background: var(--line);
+            border: 1px solid var(--line);
+            border-radius: 8px;
+        }
+
+        .feature-card {
+            display: grid;
+            grid-template-columns: 46px 1fr;
+            column-gap: 16px;
+            align-items: center;
+            padding: 26px;
+            text-align: left;
+            border-radius: 0;
+            box-shadow: none;
+        }
+
+        .feature-card:hover {
+            transform: none;
+            background: #fbfdfc;
+        }
+
+        .feature-icon {
+            grid-row: 1 / span 2;
+            display: grid;
+            width: 46px;
+            height: 46px;
+            place-items: center;
+            margin: 0;
+            color: var(--primary);
+            background: #e8f4f1;
+            border-radius: 50%;
+            font-size: 1.2rem;
+        }
+
+        .feature-title {
+            margin: 0 0 4px;
+            color: var(--ink);
+            font-size: 1.02rem;
+        }
+
+        .feature-desc {
+            color: var(--muted);
+            line-height: 1.65;
+        }
+
+        .house-list {
+            margin-bottom: 64px;
+        }
+
+        .section-title {
+            margin-bottom: 24px;
+            color: var(--ink);
+            text-align: left;
+            font-size: 1.65rem;
+        }
+
+        .section-title::after {
+            content: "精选真实房源";
+            margin-left: 14px;
+            color: var(--muted);
+            font-size: 0.88rem;
+            font-weight: 400;
+        }
+
+        .houses {
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .house-card {
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            box-shadow: none;
+            transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s;
+        }
+
+        .house-card:hover {
+            transform: translateY(-4px);
+            border-color: #c4d6d1;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .house-img {
+            height: 220px;
+            transition: transform 0.4s;
+        }
+
+        .house-card:hover .house-img {
+            transform: scale(1.025);
+        }
+
+        .catalog-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .catalog-toolbar .section-title {
+            margin-bottom: 0;
+        }
+
+        .catalog-status {
+            color: var(--muted);
+            font-size: 0.9rem;
+        }
+
+        .catalog-status.error {
+            color: #b34132;
+        }
+
+        .house-card {
+            position: relative;
+        }
+
+        .favorite-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            z-index: 2;
+            display: grid;
+            width: 38px;
+            height: 38px;
+            place-items: center;
+            color: #344b45;
+            background: rgba(255, 255, 255, .92);
+            border: 0;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, .12);
+        }
+
+        .favorite-btn.active {
+            color: #e76244;
+        }
+
+        .house-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 18px;
+        }
+
+        .house-action {
+            flex: 1;
+            padding: 9px 12px;
+            color: var(--primary);
+            background: #fff;
+            border: 1px solid #b9d4cd;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .house-action.primary {
+            color: #fff;
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .catalog-empty {
+            grid-column: 1 / -1;
+            padding: 52px 24px;
+            color: var(--muted);
+            text-align: center;
+            background: #fff;
+            border: 1px dashed #c6d5d1;
+            border-radius: 8px;
+        }
+
+        .house-card.skeleton {
+            min-height: 390px;
+            background: linear-gradient(100deg, #edf2f0 30%, #f8faf9 50%, #edf2f0 70%);
+            background-size: 300% 100%;
+            animation: shimmer 1.4s infinite;
+        }
+
+        @keyframes shimmer {
+            to {
+                background-position-x: -150%;
+            }
+        }
+
+        .house-info {
+            position: relative;
+            padding: 20px;
+            background: var(--surface);
+        }
+
+        .house-title {
+            color: var(--ink);
+            line-height: 1.45;
+        }
+
+        .house-location {
+            color: var(--muted);
+        }
+
+        .house-location i {
+            color: var(--primary);
+        }
+
+        .house-price {
+            color: var(--accent);
+            font-size: 1.35rem;
+        }
+
+        .tag {
+            padding: 4px 9px;
+            color: #48615b;
+            background: #eef4f2;
+            border-radius: 4px;
+        }
+
+        footer {
+            color: var(--muted);
+            border-color: var(--line);
+        }
+
+        .chat-icon {
+            width: 58px;
+            height: 58px;
+            background: var(--primary);
+            border: 3px solid rgba(255, 255, 255, 0.9);
+            box-shadow: 0 12px 30px rgba(8, 77, 64, 0.3);
+            font-size: 21px;
+            transition: transform 0.2s, background-color 0.2s, box-shadow 0.2s;
+        }
+
+        .chat-icon::after {
+            content: "";
+            position: absolute;
+            top: 2px;
+            right: 1px;
+            width: 10px;
+            height: 10px;
+            background: #65d184;
+            border: 2px solid #fff;
+            border-radius: 50%;
+        }
+
+        .chat-icon:hover {
+            transform: translateY(-3px);
+            background: var(--primary-dark);
+            box-shadow: 0 16px 32px rgba(8, 77, 64, 0.36);
+        }
+
+        .chat-container {
+            width: min(420px, calc(100vw - 32px));
+            height: min(620px, calc(100vh - 120px));
+            min-height: min(420px, calc(100vh - 16px));
+            background: var(--surface);
+            border: 1px solid rgba(17, 58, 50, 0.12);
+            border-radius: 8px;
+            box-shadow: var(--shadow-lg);
+            animation: chatEnter 0.24s ease-out;
+        }
+
+        .chat-container.is-dragging {
+            user-select: none;
+            box-shadow: 0 28px 72px rgba(14, 40, 34, 0.28);
+        }
+
+        .chat-container.is-resizing {
+            user-select: none;
+            box-shadow: 0 28px 72px rgba(14, 40, 34, 0.28);
+        }
+
+        .resize-handle {
+            position: absolute;
+            z-index: 10;
+            background: transparent;
+            touch-action: none;
+            transition: background-color 0.15s;
+        }
+
+        .resize-handle:hover,
+        .resize-handle:active {
+            background: rgba(8, 127, 104, 0.12);
+        }
+
+        .resize-handle[data-resize="n"],
+        .resize-handle[data-resize="s"] {
+            left: 12px;
+            width: calc(100% - 24px);
+            height: 8px;
+            cursor: ns-resize;
+        }
+
+        .resize-handle[data-resize="n"] {
+            top: 0;
+        }
+
+        .resize-handle[data-resize="s"] {
+            bottom: 0;
+        }
+
+        .resize-handle[data-resize="e"],
+        .resize-handle[data-resize="w"] {
+            top: 12px;
+            width: 8px;
+            height: calc(100% - 24px);
+            cursor: ew-resize;
+        }
+
+        .resize-handle[data-resize="e"] {
+            right: 0;
+        }
+
+        .resize-handle[data-resize="w"] {
+            left: 0;
+        }
+
+        .resize-handle[data-resize="ne"],
+        .resize-handle[data-resize="nw"],
+        .resize-handle[data-resize="se"],
+        .resize-handle[data-resize="sw"] {
+            width: 16px;
+            height: 16px;
+        }
+
+        .resize-handle[data-resize="ne"] {
+            top: 0;
+            right: 0;
+            cursor: nesw-resize;
+        }
+
+        .resize-handle[data-resize="nw"] {
+            top: 0;
+            left: 0;
+            cursor: nwse-resize;
+        }
+
+        .resize-handle[data-resize="se"] {
+            right: 0;
+            bottom: 0;
+            cursor: nwse-resize;
+        }
+
+        .resize-handle[data-resize="sw"] {
+            left: 0;
+            bottom: 0;
+            cursor: nesw-resize;
+        }
+
+        .resize-handle[data-resize="se"]::after {
+            content: "";
+            position: absolute;
+            right: 3px;
+            bottom: 3px;
+            width: 6px;
+            height: 6px;
+            border-right: 2px solid rgba(8, 127, 104, 0.55);
+            border-bottom: 2px solid rgba(8, 127, 104, 0.55);
+        }
+
+        @keyframes chatEnter {
+            from {
+                opacity: 0;
+                transform: translateY(10px) scale(0.98);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .chat-header {
+            min-height: 76px;
+            padding: 14px 16px;
+            background: #123d36;
+            cursor: grab;
+            touch-action: none;
+        }
+
+        .chat-container.is-dragging .chat-header {
+            cursor: grabbing;
+        }
+
+        .chat-agent {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            min-width: 0;
+        }
+
+        .chat-agent-avatar {
+            display: grid;
+            flex: 0 0 auto;
+            width: 42px;
+            height: 42px;
+            place-items: center;
+            color: #123d36;
+            background: #dff3ed;
+            border-radius: 50%;
+        }
+
+        .chat-agent-copy {
+            display: grid;
+            line-height: 1.35;
+        }
+
+        .chat-agent-copy strong {
+            font-size: 0.98rem;
+        }
+
+        .chat-status {
+            color: rgba(255, 255, 255, 0.68);
+            font-size: 0.76rem;
+            font-weight: 400;
+        }
+
+        .chat-status::before {
+            content: "";
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            margin-right: 6px;
+            background: #65d184;
+            border-radius: 50%;
+            vertical-align: 1px;
+        }
+
+        .close-chat {
+            display: grid;
+            width: 36px;
+            height: 36px;
+            place-items: center;
+            padding: 0;
+            border-radius: 50%;
+            transition: background-color 0.2s;
+        }
+
+        .close-chat:hover {
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        .chat-messages {
+            gap: 6px;
+            padding: 22px 18px;
+            background: #f3f7f5;
+            scrollbar-color: #becdc8 transparent;
+            scrollbar-width: thin;
+        }
+
+        .message {
+            max-width: 86%;
+            margin-bottom: 10px;
+            font-size: 0.93rem;
+            line-height: 1.65;
+        }
+
+        .user-message {
+            padding: 11px 15px;
+            background: var(--primary);
+            border-radius: 14px 14px 4px 14px;
+            box-shadow: 0 4px 12px rgba(8, 127, 104, 0.16);
+        }
+
+        .ai-message {
+            padding: 11px 15px;
+            color: #293a36;
+            border-color: var(--line);
+            border-radius: 14px 14px 14px 4px;
+            box-shadow: 0 3px 10px rgba(23, 52, 45, 0.04);
+        }
+
+        .ai-message p:last-child {
+            margin-bottom: 0;
+        }
+
+        .process-message {
+            padding: 11px 14px;
+            color: var(--muted);
+            background: #eaf1ef;
+            border-color: #d4dfdc;
+            border-radius: 8px;
+        }
+
+        .chat-input-area {
+            align-items: center;
+            padding: 12px;
+            gap: 8px;
+            border-color: var(--line);
+        }
+
+        .chat-input {
+            min-width: 0;
+            height: 46px;
+            padding: 0 14px;
+            background: #f6f9f8;
+            border: 1px solid var(--line);
+            border-radius: 6px;
+        }
+
+        .chat-input:focus {
+            background: #fff;
+            border-color: var(--primary);
+        }
+
+        .send-btn {
+            display: grid;
+            flex: 0 0 auto;
+            width: 46px;
+            height: 46px;
+            place-items: center;
+            padding: 0;
+            background: var(--primary);
+            border-radius: 6px;
+            font-size: 0;
+            transition: background-color 0.2s, transform 0.2s;
+        }
+
+        .send-btn::before {
+            content: "\f1d8";
+            font-family: "Font Awesome 6 Free";
+            font-size: 1rem;
+            font-weight: 900;
+        }
+
+        .send-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+
+        @media (max-width: 900px) {
+
+            .features,
+            .houses {
+                grid-template-columns: 1fr;
+            }
+
+            .feature-card {
+                padding: 22px;
+            }
+
+            .house-img {
+                height: min(280px, 55vw);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 12px;
+            }
+
+            header {
+                min-height: 270px;
+                margin-bottom: -30px;
+                padding: 52px 24px 76px;
+            }
+
+            h1 {
+                font-size: 2.35rem;
+            }
+
+            .subtitle {
+                font-size: 0.95rem;
+            }
+
+            .search-box {
+                margin: 0 10px 34px;
+                padding: 12px;
+            }
+
+            .search-input,
+            .search-btn {
+                flex-basis: 100%;
+                width: 100%;
+            }
+
+            .chat-icon {
+                width: 56px;
+                height: 56px;
+                font-size: 20px;
+            }
+
+            .chat-container {
+                right: 12px;
+                bottom: 86px;
+                width: calc(100vw - 24px);
+                height: min(72vh, 620px);
+                min-height: min(390px, calc(100vh - 16px));
+            }
+
+            .chat-header {
+                min-height: 68px;
+                padding: 10px 12px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+
+            *,
+            *::before,
+            *::after {
+                scroll-behavior: auto !important;
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
     </style>
 </head>
 
@@ -569,56 +1315,14 @@
         </div>
 
         <div class="house-list">
-            <h2 class="section-title">推荐房源</h2>
-            <div class="houses">
-                <div class="house-card">
-                    <img src="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80"
-                        alt="公寓图片" class="house-img">
-                    <div class="house-info">
-                        <h3 class="house-title">整租·阳光公寓 1室1厅1卫</h3>
-                        <div class="house-location">
-                            <i class="fas fa-map-marker-alt"></i> 北京海淀·中关村
-                        </div>
-                        <div class="house-price">¥4500/月</div>
-                        <div class="house-tags">
-                            <span class="tag">近地铁</span>
-                            <span class="tag">精装修</span>
-                            <span class="tag">拎包入住</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="house-card">
-                    <img src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80"
-                        alt="公寓图片" class="house-img">
-                    <div class="house-info">
-                        <h3 class="house-title">合租·青年社区 主卧独卫</h3>
-                        <div class="house-location">
-                            <i class="fas fa-map-marker-alt"></i> 上海浦东·陆家嘴
-                        </div>
-                        <div class="house-price">¥3200/月</div>
-                        <div class="house-tags">
-                            <span class="tag">室友友好</span>
-                            <span class="tag">智能门锁</span>
-                            <span class="tag">公共区域</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="house-card">
-                    <img src="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80"
-                        alt="公寓图片" class="house-img">
-                    <div class="house-info">
-                        <h3 class="house-title">整租·温馨家园 2室1厅1卫</h3>
-                        <div class="house-location">
-                            <i class="fas fa-map-marker-alt"></i> 广州天河·珠江新城
-                        </div>
-                        <div class="house-price">¥5800/月</div>
-                        <div class="house-tags">
-                            <span class="tag">南北通透</span>
-                            <span class="tag">家电齐全</span>
-                            <span class="tag">小区安静</span>
-                        </div>
-                    </div>
-                </div>
+            <div class="catalog-toolbar">
+                <h2 class="section-title">推荐房源</h2>
+                <span class="catalog-status" id="catalogStatus" role="status" aria-live="polite">正在连接房源数据库…</span>
+            </div>
+            <div class="houses" id="houses" aria-busy="true">
+                <div class="house-card skeleton"></div>
+                <div class="house-card skeleton"></div>
+                <div class="house-card skeleton"></div>
             </div>
         </div>
 
@@ -665,6 +1369,8 @@
         let isChatOpen = false;
         let aiMessageElement = null;
         let thinkElement = null;
+        let isSending = false;
+        let catalogRequest = null;
 
         // 配置 marked
         marked.setOptions({
@@ -683,6 +1389,36 @@
         const budgetInput = document.getElementById('budgetInput');
         const layoutInput = document.getElementById('layoutInput');
         const searchBtn = document.getElementById('searchBtn');
+        const houses = document.getElementById('houses');
+        const catalogStatus = document.getElementById('catalogStatus');
+
+        const USER_ID_KEY = 'rental-assistant-user-id';
+        const FAVORITES_KEY = 'rental-assistant-favorites';
+        const userId = getOrCreateUserId();
+
+        function getOrCreateUserId() {
+            let id = localStorage.getItem(USER_ID_KEY);
+            if (!id) {
+                id = window.crypto?.randomUUID?.() || `web-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+                localStorage.setItem(USER_ID_KEY, id);
+            }
+            return id;
+        }
+
+        function safeMarkdown(markdown) {
+            const template = document.createElement('template');
+            template.innerHTML = marked.parse(String(markdown || ''));
+            template.content.querySelectorAll('script,style,iframe,object,embed,form').forEach(node => node.remove());
+            template.content.querySelectorAll('*').forEach(node => {
+                [...node.attributes].forEach(attr => {
+                    const value = attr.value.trim().toLowerCase();
+                    if (attr.name.startsWith('on') || ((attr.name === 'href' || attr.name === 'src') && value.startsWith('javascript:'))) {
+                        node.removeAttribute(attr.name);
+                    }
+                });
+            });
+            return template.innerHTML;
+        }
 
         // 打开聊天窗口
         async function openChatPanel() {
@@ -728,14 +1464,127 @@
 
         // 创建会话
         async function handleHouseSearch() {
-            const message = buildHouseSearchMessage();
-            if (!message) {
-                locationInput.focus();
+            await loadCatalog({
+                location: locationInput.value.trim(),
+                budget_max: parseBudget(budgetInput.value),
+                layout: layoutInput.value.trim(),
+                limit: 12
+            });
+        }
+
+        function parseBudget(value) {
+            const numbers = String(value || '').match(/\d+(?:\.\d+)?/g);
+            return numbers?.length ? Number(numbers[numbers.length - 1]) : null;
+        }
+
+        const fallbackImages = [
+            'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=800&q=80',
+            'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80',
+            'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=800&q=80'
+        ];
+
+        function loadFavorites() {
+            try { return new Set(JSON.parse(localStorage.getItem(FAVORITES_KEY) || '[]')); }
+            catch { return new Set(); }
+        }
+
+        function renderCatalog(listings) {
+            houses.replaceChildren();
+            houses.setAttribute('aria-busy', 'false');
+            if (!listings.length) {
+                const empty = document.createElement('div');
+                empty.className = 'catalog-empty';
+                empty.textContent = '没有找到符合条件的房源，您可以放宽筛选条件后重试。';
+                houses.appendChild(empty);
                 return;
             }
+            const favorites = loadFavorites();
+            listings.forEach((listing, index) => {
+                const card = document.createElement('article');
+                card.className = 'house-card';
+                const image = document.createElement('img');
+                image.className = 'house-img';
+                image.alt = listing.title || '房源图片';
+                image.loading = 'lazy';
+                image.src = /^https?:\/\//i.test(listing.image || '') ? listing.image : fallbackImages[index % fallbackImages.length];
+                image.onerror = () => { image.onerror = null; image.src = fallbackImages[index % fallbackImages.length]; };
 
-            await openChatPanel();
-            await sendMessage(message);
+                const favorite = document.createElement('button');
+                favorite.className = `favorite-btn${favorites.has(String(listing.id)) ? ' active' : ''}`;
+                favorite.type = 'button';
+                favorite.title = '收藏房源';
+                favorite.setAttribute('aria-label', '收藏房源');
+                favorite.innerHTML = '<i class="fas fa-heart"></i>';
+                favorite.addEventListener('click', () => {
+                    const saved = loadFavorites();
+                    const id = String(listing.id);
+                    saved.has(id) ? saved.delete(id) : saved.add(id);
+                    localStorage.setItem(FAVORITES_KEY, JSON.stringify([...saved]));
+                    favorite.classList.toggle('active', saved.has(id));
+                });
+
+                const info = document.createElement('div');
+                info.className = 'house-info';
+                const title = document.createElement('h3');
+                title.className = 'house-title';
+                title.textContent = listing.title || '优选房源';
+                const location = document.createElement('div');
+                location.className = 'house-location';
+                location.textContent = [listing.city, listing.region, listing.address].filter(Boolean).join(' · ') || '位置待确认';
+                const price = document.createElement('div');
+                price.className = 'house-price';
+                price.textContent = Number.isFinite(listing.price) ? `¥${listing.price.toLocaleString('zh-CN')}/月` : '价格面议';
+                const tags = document.createElement('div');
+                tags.className = 'house-tags';
+                (listing.tags || []).forEach(value => {
+                    const tag = document.createElement('span'); tag.className = 'tag'; tag.textContent = value; tags.appendChild(tag);
+                });
+                const actions = document.createElement('div');
+                actions.className = 'house-actions';
+                const consult = document.createElement('button');
+                consult.className = 'house-action'; consult.textContent = '咨询详情'; consult.type = 'button';
+                consult.addEventListener('click', async () => { await openChatPanel(); await sendMessage(`请介绍一下房源“${listing.title}”的详细信息。`); });
+                const reserve = document.createElement('button');
+                reserve.className = 'house-action primary'; reserve.textContent = '预约看房'; reserve.type = 'button';
+                reserve.addEventListener('click', async () => { await openChatPanel(); await sendMessage(`我想预订房源“${listing.title}”。`); });
+                actions.append(consult, reserve);
+                info.append(title, location, price, tags, actions);
+                card.append(image, favorite, info);
+                houses.appendChild(card);
+            });
+        }
+
+        async function loadCatalog(filters = {}) {
+            catalogRequest?.abort();
+            const controller = new AbortController();
+            catalogRequest = controller;
+            const timeout = setTimeout(() => controller.abort(), 12000);
+            houses.setAttribute('aria-busy', 'true');
+            catalogStatus.className = 'catalog-status';
+            catalogStatus.textContent = '正在读取真实房源…';
+            searchBtn.disabled = true;
+            try {
+                const response = await fetch(`${API_BASE_URL}/runs/wait`, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' }, signal: controller.signal,
+                    body: JSON.stringify({ assistant_id: 'catalog_agent', input: { ...filters, limit: filters.limit || 9 } })
+                });
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                const data = await response.json();
+                renderCatalog(Array.isArray(data.listings) ? data.listings : []);
+                catalogStatus.textContent = data.error
+                    ? `${data.error}${data.stale ? '（当前展示最近缓存）' : ''}`
+                    : `已加载 ${data.total ?? data.listings?.length ?? 0} 套真实房源`;
+                catalogStatus.classList.toggle('error', Boolean(data.error));
+            } catch (error) {
+                if (catalogRequest !== controller) return;
+                if (error.name !== 'AbortError' || !controller.signal.aborted) console.error('加载房源失败:', error);
+                renderCatalog([]);
+                catalogStatus.className = 'catalog-status error';
+                catalogStatus.textContent = error.name === 'AbortError' ? '请求超时，请稍后重试' : '房源服务暂时不可用，请稍后重试';
+            } finally {
+                clearTimeout(timeout);
+                if (catalogRequest === controller) searchBtn.disabled = false;
+            }
         }
 
         function buildHouseSearchMessage() {
@@ -763,13 +1612,17 @@
 
         async function createThread() {
             try {
+                const controller = new AbortController();
+                const timeout = setTimeout(() => controller.abort(), 10000);
                 const response = await fetch(`${API_BASE_URL}/threads`, {
                     method: 'POST',
+                    signal: controller.signal,
                     headers: {
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({})
                 });
+                clearTimeout(timeout);
 
                 if (!response.ok) {
                     throw new Error(`服务器返回错误状态: ${response.status}`);
@@ -778,6 +1631,7 @@
                 const data = await response.json();
                 currentThreadId = data.thread_id;
                 console.log('会话创建成功:', currentThreadId);
+                return true;
 
             } catch (error) {
                 console.error('创建会话失败:', error);
@@ -787,13 +1641,18 @@
                 errorMsg.style.color = '#e74c3c';
                 errorMsg.textContent = `⚠️ 无法连接到服务器 (${API_BASE_URL})，请确认：\n1. LangGraph 服务已启动\n2. 端口地址配置正确\n3. 网络连接正常`;
                 chatMessages.appendChild(errorMsg);
+                return false;
             }
         }
 
         // 发送消息函数
         async function sendMessage(messageOverride) {
             const message = (typeof messageOverride === 'string' ? messageOverride : chatInput.value).trim();
-            if (!message || !currentThreadId) return;
+            if (!message || isSending) return;
+            if (!currentThreadId && !(await createThread())) return;
+            isSending = true;
+            sendBtn.disabled = true;
+            chatInput.disabled = true;
 
             // 清空输入框
             if (typeof messageOverride !== 'string') {
@@ -821,9 +1680,7 @@
                         command: {
                             resume: message
                         },
-                        context: {
-                            user_id: "159"
-                        },
+                        context: { user_id: userId },
                         stream_mode: ["updates", "messages"],
                         stream_subgraphs: true
                     };
@@ -834,9 +1691,7 @@
                         input: {
                             messages: [{ "role": "human", "content": message }]
                         },
-                        context: {
-                            user_id: "159"
-                        },
+                        context: { user_id: userId },
                         stream_mode: ["updates", "messages"],
                         stream_subgraphs: true
                     };
@@ -896,19 +1751,22 @@
                 });
 
                 // 读取流式响应
+                if (!response.body) throw new Error('服务器未返回可读取的数据流');
                 const reader = response.body.getReader();
                 const decoder = new TextDecoder();
                 let thinkContentText = '';
                 let aiMessageContent = '';
                 let startAI = false;
                 let interruptId = '';
+                let streamBuffer = '';
+                let currentType = '';
                 while (true) {
                     const { done, value } = await reader.read();
                     if (done) break;
 
-                    const chunk = decoder.decode(value);
-                    const lines = chunk.split('\n');
-                    let currentType = '';
+                    streamBuffer += decoder.decode(value, { stream: true });
+                    const lines = streamBuffer.split('\n');
+                    streamBuffer = lines.pop() || '';
 
 
                     for (const line of lines) {
@@ -961,7 +1819,7 @@
                                         interruptMessageElement.className = 'message ai-message';
                                         interruptMessageElement.id = '__interrupt__'
                                         // 使用 marked 解析 Markdown
-                                        interruptMessageElement.innerHTML = marked.parse(data.__interrupt__[0].value);
+                                        interruptMessageElement.innerHTML = safeMarkdown(data.__interrupt__[0].value);
                                         chatMessages.appendChild(interruptMessageElement);
                                         // 去重，会存在两个事件，如下：
                                         // event: updates|reserve_graph:b9ec69e0-ce52-e030-c3d3-ccdba7555727
@@ -1002,7 +1860,7 @@
                                         // 更新AI消息内容
                                         aiMessageContent = messageData.content;
                                         // 使用 marked 解析 Markdown
-                                        aiMessageElement.innerHTML = marked.parse(aiMessageContent);
+                                        aiMessageElement.innerHTML = safeMarkdown(aiMessageContent);
                                         // 滚动到底部
                                         chatMessages.scrollTop = chatMessages.scrollHeight;
                                     }
@@ -1028,11 +1886,17 @@
                 }
                 chatMessages.appendChild(errorMessage);
                 chatMessages.scrollTop = chatMessages.scrollHeight;
+            } finally {
+                isSending = false;
+                sendBtn.disabled = false;
+                chatInput.disabled = false;
+                chatInput.focus();
             }
         }
 
         // 页面加载完成后，预创建会话
         window.addEventListener('load', () => {
+            loadCatalog({ limit: 9 });
             // 延迟创建会话，避免页面加载时立即发起请求
             setTimeout(() => {
                 createThread();

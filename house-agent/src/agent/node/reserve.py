@@ -1,4 +1,5 @@
 import uuid
+import re
 from typing import Annotated, Any
 
 from langchain_core.messages import HumanMessage, SystemMessage
@@ -12,6 +13,13 @@ from src.agent.state.reserve import ReserveState
 
 # 节点：获取预定房源名称
 def get_title(state: ReserveState):
+    # Reuse a title supplied by the card action or the user's original message.
+    if state.get("title"):
+        return {"title": str(state["title"]).strip()}
+    for message in reversed(state.get("messages", [])):
+        match = re.search(r"[“\"']([^”\"']{2,100})[”\"']", str(message.content))
+        if match:
+            return {"title": match.group(1).strip()}
     prompt = "请输入要预定的房源名称"
 
     while True:
@@ -29,8 +37,9 @@ def get_phone(state: ReserveState):
 
     while True:
         phone_number = interrupt(prompt)
-        if phone_number:  # 验证操作
-            return {"phone_number": phone_number}
+        normalized = re.sub(r"[\s-]", "", str(phone_number or ""))
+        if re.fullmatch(r"1[3-9]\d{9}", normalized):
+            return {"phone_number": normalized}
 
         # 验证失败：再次输入
         prompt = f"‘{phone_number}’ 不是一个有效的电话号码，请更正"
@@ -42,8 +51,9 @@ def get_id(state: ReserveState):
 
     while True:
         id_card = interrupt(prompt)
-        if id_card:  # 验证操作
-            return {"id_card": id_card}
+        normalized = str(id_card or "").strip().upper()
+        if re.fullmatch(r"\d{17}[\dX]|\d{15}", normalized):
+            return {"id_card": normalized}
 
         # 验证失败：再次输入
         prompt = f"‘{id_card}’ 不是一个有效的身份证号码，请更正"
@@ -94,7 +104,7 @@ Args:
 
     # 3. 持久化存储用户偏好（预定信息）
     user_id = runtime.context.get("user_id") if runtime.context is not None else runtime.config.get("configurable", {}).get("user_id")
-    namespace = (user_id, "preferences")
+    namespace = (str(user_id or "anonymous"), "preferences")
     # 查询
     prefs_result = store.search(namespace)
     if len(prefs_result) == 0:
@@ -109,7 +119,7 @@ Args:
     else:
         # 有偏好数据，更新
         prefs = prefs_result[0].value or {}
-        prefs.setdefault('reserved_info', []).append(reserved_info)
+        prefs.setdefault('reserved_info', []).append(reserved_info.model_dump(exclude_none=True))
         store.put(
             namespace,
             prefs_result[0].key,
