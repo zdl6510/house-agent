@@ -527,6 +527,621 @@
                 height: 650px;
             }
         }
+
+        /* 2026 visual refresh */
+        :root {
+            --ink: #172321;
+            --muted: #66736f;
+            --line: #dde6e3;
+            --surface: #ffffff;
+            --canvas: #f3f7f5;
+            --primary: #087f68;
+            --primary-dark: #056653;
+            --accent: #e76244;
+            --shadow-sm: 0 8px 24px rgba(24, 52, 45, 0.08);
+            --shadow-lg: 0 24px 64px rgba(14, 40, 34, 0.2);
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            min-height: 100vh;
+            background: var(--canvas);
+            color: var(--ink);
+            font-family: Inter, "Microsoft YaHei", "PingFang SC", "Segoe UI", sans-serif;
+        }
+
+        button,
+        input {
+            font: inherit;
+        }
+
+        button:focus-visible,
+        input:focus-visible {
+            outline: 3px solid rgba(8, 127, 104, 0.22);
+            outline-offset: 2px;
+        }
+
+        .container {
+            max-width: 1240px;
+            padding: 24px;
+        }
+
+        header {
+            position: relative;
+            isolation: isolate;
+            min-height: 310px;
+            margin-bottom: -42px;
+            padding: 76px 8% 100px;
+            overflow: hidden;
+            text-align: left;
+            background-color: #123d36;
+            background-image: url("https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&w=1800&q=82");
+            background-position: center 52%;
+            background-size: cover;
+            background-blend-mode: multiply;
+            border-radius: 8px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        header::after {
+            content: "AI RENTAL CONCIERGE";
+            position: absolute;
+            right: 6%;
+            bottom: 26px;
+            z-index: -1;
+            color: rgba(255, 255, 255, 0.14);
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.18em;
+        }
+
+        h1 {
+            max-width: 700px;
+            margin-bottom: 16px;
+            font-size: 3.8rem;
+            line-height: 1.08;
+            letter-spacing: 0;
+        }
+
+        .subtitle {
+            max-width: 620px;
+            margin: 0;
+            color: rgba(255, 255, 255, 0.84);
+            font-size: 1.05rem;
+            line-height: 1.8;
+        }
+
+        .search-box {
+            position: relative;
+            z-index: 2;
+            align-items: center;
+            justify-content: stretch;
+            margin: 0 5% 42px;
+            padding: 18px;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.98);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            border-radius: 8px;
+            box-shadow: 0 18px 45px rgba(17, 46, 40, 0.16);
+        }
+
+        .search-input {
+            min-width: 180px;
+            height: 48px;
+            padding: 0 15px;
+            color: var(--ink);
+            background: #f7faf9;
+            border: 1px solid var(--line);
+            border-radius: 6px;
+            transition: border-color 0.2s, background-color 0.2s, box-shadow 0.2s;
+        }
+
+        .search-input:focus {
+            background: #fff;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(8, 127, 104, 0.1);
+        }
+
+        .search-btn {
+            min-height: 48px;
+            padding: 0 24px;
+            background: var(--primary);
+            border-radius: 6px;
+            box-shadow: none;
+            transition: background-color 0.2s, transform 0.2s, box-shadow 0.2s;
+        }
+
+        .search-btn::before {
+            content: "\f002";
+            margin-right: 9px;
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+        }
+
+        .search-btn:hover {
+            background: var(--primary-dark);
+            box-shadow: 0 8px 18px rgba(8, 127, 104, 0.22);
+        }
+
+        .features {
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1px;
+            margin: 0 0 64px;
+            overflow: hidden;
+            background: var(--line);
+            border: 1px solid var(--line);
+            border-radius: 8px;
+        }
+
+        .feature-card {
+            display: grid;
+            grid-template-columns: 46px 1fr;
+            column-gap: 16px;
+            align-items: center;
+            padding: 26px;
+            text-align: left;
+            border-radius: 0;
+            box-shadow: none;
+        }
+
+        .feature-card:hover {
+            transform: none;
+            background: #fbfdfc;
+        }
+
+        .feature-icon {
+            grid-row: 1 / span 2;
+            display: grid;
+            width: 46px;
+            height: 46px;
+            place-items: center;
+            margin: 0;
+            color: var(--primary);
+            background: #e8f4f1;
+            border-radius: 50%;
+            font-size: 1.2rem;
+        }
+
+        .feature-title {
+            margin: 0 0 4px;
+            color: var(--ink);
+            font-size: 1.02rem;
+        }
+
+        .feature-desc {
+            color: var(--muted);
+            line-height: 1.65;
+        }
+
+        .house-list {
+            margin-bottom: 64px;
+        }
+
+        .section-title {
+            margin-bottom: 24px;
+            color: var(--ink);
+            text-align: left;
+            font-size: 1.65rem;
+        }
+
+        .section-title::after {
+            content: "精选真实房源";
+            margin-left: 14px;
+            color: var(--muted);
+            font-size: 0.88rem;
+            font-weight: 400;
+        }
+
+        .houses {
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .house-card {
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            box-shadow: none;
+            transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s;
+        }
+
+        .house-card:hover {
+            transform: translateY(-4px);
+            border-color: #c4d6d1;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .house-img {
+            height: 220px;
+            transition: transform 0.4s;
+        }
+
+        .house-card:hover .house-img {
+            transform: scale(1.025);
+        }
+
+        .house-info {
+            position: relative;
+            padding: 20px;
+            background: var(--surface);
+        }
+
+        .house-title {
+            color: var(--ink);
+            line-height: 1.45;
+        }
+
+        .house-location {
+            color: var(--muted);
+        }
+
+        .house-location i {
+            color: var(--primary);
+        }
+
+        .house-price {
+            color: var(--accent);
+            font-size: 1.35rem;
+        }
+
+        .tag {
+            padding: 4px 9px;
+            color: #48615b;
+            background: #eef4f2;
+            border-radius: 4px;
+        }
+
+        footer {
+            color: var(--muted);
+            border-color: var(--line);
+        }
+
+        .chat-icon {
+            width: 58px;
+            height: 58px;
+            background: var(--primary);
+            border: 3px solid rgba(255, 255, 255, 0.9);
+            box-shadow: 0 12px 30px rgba(8, 77, 64, 0.3);
+            font-size: 21px;
+            transition: transform 0.2s, background-color 0.2s, box-shadow 0.2s;
+        }
+
+        .chat-icon::after {
+            content: "";
+            position: absolute;
+            top: 2px;
+            right: 1px;
+            width: 10px;
+            height: 10px;
+            background: #65d184;
+            border: 2px solid #fff;
+            border-radius: 50%;
+        }
+
+        .chat-icon:hover {
+            transform: translateY(-3px);
+            background: var(--primary-dark);
+            box-shadow: 0 16px 32px rgba(8, 77, 64, 0.36);
+        }
+
+        .chat-container {
+            width: min(420px, calc(100vw - 32px));
+            height: min(620px, calc(100vh - 120px));
+            min-height: min(420px, calc(100vh - 16px));
+            background: var(--surface);
+            border: 1px solid rgba(17, 58, 50, 0.12);
+            border-radius: 8px;
+            box-shadow: var(--shadow-lg);
+            animation: chatEnter 0.24s ease-out;
+        }
+
+        .chat-container.is-dragging {
+            user-select: none;
+            box-shadow: 0 28px 72px rgba(14, 40, 34, 0.28);
+        }
+
+        .chat-container.is-resizing {
+            user-select: none;
+            box-shadow: 0 28px 72px rgba(14, 40, 34, 0.28);
+        }
+
+        .resize-handle {
+            position: absolute;
+            z-index: 10;
+            background: transparent;
+            touch-action: none;
+            transition: background-color 0.15s;
+        }
+
+        .resize-handle:hover,
+        .resize-handle:active {
+            background: rgba(8, 127, 104, 0.12);
+        }
+
+        .resize-handle[data-resize="n"],
+        .resize-handle[data-resize="s"] {
+            left: 12px;
+            width: calc(100% - 24px);
+            height: 8px;
+            cursor: ns-resize;
+        }
+
+        .resize-handle[data-resize="n"] { top: 0; }
+        .resize-handle[data-resize="s"] { bottom: 0; }
+
+        .resize-handle[data-resize="e"],
+        .resize-handle[data-resize="w"] {
+            top: 12px;
+            width: 8px;
+            height: calc(100% - 24px);
+            cursor: ew-resize;
+        }
+
+        .resize-handle[data-resize="e"] { right: 0; }
+        .resize-handle[data-resize="w"] { left: 0; }
+
+        .resize-handle[data-resize="ne"],
+        .resize-handle[data-resize="nw"],
+        .resize-handle[data-resize="se"],
+        .resize-handle[data-resize="sw"] {
+            width: 16px;
+            height: 16px;
+        }
+
+        .resize-handle[data-resize="ne"] { top: 0; right: 0; cursor: nesw-resize; }
+        .resize-handle[data-resize="nw"] { top: 0; left: 0; cursor: nwse-resize; }
+        .resize-handle[data-resize="se"] { right: 0; bottom: 0; cursor: nwse-resize; }
+        .resize-handle[data-resize="sw"] { left: 0; bottom: 0; cursor: nesw-resize; }
+
+        .resize-handle[data-resize="se"]::after {
+            content: "";
+            position: absolute;
+            right: 3px;
+            bottom: 3px;
+            width: 6px;
+            height: 6px;
+            border-right: 2px solid rgba(8, 127, 104, 0.55);
+            border-bottom: 2px solid rgba(8, 127, 104, 0.55);
+        }
+
+        @keyframes chatEnter {
+            from { opacity: 0; transform: translateY(10px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .chat-header {
+            min-height: 76px;
+            padding: 14px 16px;
+            background: #123d36;
+            cursor: grab;
+            touch-action: none;
+        }
+
+        .chat-container.is-dragging .chat-header {
+            cursor: grabbing;
+        }
+
+        .chat-agent {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            min-width: 0;
+        }
+
+        .chat-agent-avatar {
+            display: grid;
+            flex: 0 0 auto;
+            width: 42px;
+            height: 42px;
+            place-items: center;
+            color: #123d36;
+            background: #dff3ed;
+            border-radius: 50%;
+        }
+
+        .chat-agent-copy {
+            display: grid;
+            line-height: 1.35;
+        }
+
+        .chat-agent-copy strong {
+            font-size: 0.98rem;
+        }
+
+        .chat-status {
+            color: rgba(255, 255, 255, 0.68);
+            font-size: 0.76rem;
+            font-weight: 400;
+        }
+
+        .chat-status::before {
+            content: "";
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            margin-right: 6px;
+            background: #65d184;
+            border-radius: 50%;
+            vertical-align: 1px;
+        }
+
+        .close-chat {
+            display: grid;
+            width: 36px;
+            height: 36px;
+            place-items: center;
+            padding: 0;
+            border-radius: 50%;
+            transition: background-color 0.2s;
+        }
+
+        .close-chat:hover {
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        .chat-messages {
+            gap: 6px;
+            padding: 22px 18px;
+            background: #f3f7f5;
+            scrollbar-color: #becdc8 transparent;
+            scrollbar-width: thin;
+        }
+
+        .message {
+            max-width: 86%;
+            margin-bottom: 10px;
+            font-size: 0.93rem;
+            line-height: 1.65;
+        }
+
+        .user-message {
+            padding: 11px 15px;
+            background: var(--primary);
+            border-radius: 14px 14px 4px 14px;
+            box-shadow: 0 4px 12px rgba(8, 127, 104, 0.16);
+        }
+
+        .ai-message {
+            padding: 11px 15px;
+            color: #293a36;
+            border-color: var(--line);
+            border-radius: 14px 14px 14px 4px;
+            box-shadow: 0 3px 10px rgba(23, 52, 45, 0.04);
+        }
+
+        .ai-message p:last-child {
+            margin-bottom: 0;
+        }
+
+        .process-message {
+            padding: 11px 14px;
+            color: var(--muted);
+            background: #eaf1ef;
+            border-color: #d4dfdc;
+            border-radius: 8px;
+        }
+
+        .chat-input-area {
+            align-items: center;
+            padding: 12px;
+            gap: 8px;
+            border-color: var(--line);
+        }
+
+        .chat-input {
+            min-width: 0;
+            height: 46px;
+            padding: 0 14px;
+            background: #f6f9f8;
+            border: 1px solid var(--line);
+            border-radius: 6px;
+        }
+
+        .chat-input:focus {
+            background: #fff;
+            border-color: var(--primary);
+        }
+
+        .send-btn {
+            display: grid;
+            flex: 0 0 auto;
+            width: 46px;
+            height: 46px;
+            place-items: center;
+            padding: 0;
+            background: var(--primary);
+            border-radius: 6px;
+            font-size: 0;
+            transition: background-color 0.2s, transform 0.2s;
+        }
+
+        .send-btn::before {
+            content: "\f1d8";
+            font-family: "Font Awesome 6 Free";
+            font-size: 1rem;
+            font-weight: 900;
+        }
+
+        .send-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+
+        @media (max-width: 900px) {
+            .features,
+            .houses {
+                grid-template-columns: 1fr;
+            }
+
+            .feature-card {
+                padding: 22px;
+            }
+
+            .house-img {
+                height: min(280px, 55vw);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 12px;
+            }
+
+            header {
+                min-height: 270px;
+                margin-bottom: -30px;
+                padding: 52px 24px 76px;
+            }
+
+            h1 {
+                font-size: 2.35rem;
+            }
+
+            .subtitle {
+                font-size: 0.95rem;
+            }
+
+            .search-box {
+                margin: 0 10px 34px;
+                padding: 12px;
+            }
+
+            .search-input,
+            .search-btn {
+                flex-basis: 100%;
+                width: 100%;
+            }
+
+            .chat-icon {
+                width: 56px;
+                height: 56px;
+                font-size: 20px;
+            }
+
+            .chat-container {
+                right: 12px;
+                bottom: 86px;
+                width: calc(100vw - 24px);
+                height: min(72vh, 620px);
+                min-height: min(390px, calc(100vh - 16px));
+            }
+
+            .chat-header {
+                min-height: 68px;
+                padding: 10px 12px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                scroll-behavior: auto !important;
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
     </style>
 </head>
 
@@ -628,15 +1243,29 @@
     </div>
 
     <!-- 聊天图标 -->
-    <div class="chat-icon" id="chatIcon">
+    <div class="chat-icon" id="chatIcon" role="button" tabindex="0" aria-label="打开智能客服" aria-expanded="false">
         <i class="fas fa-comment-dots"></i>
     </div>
 
     <!-- 聊天容器 -->
     <div class="chat-container" id="chatContainer">
-        <div class="chat-header">
-            <span>租房智能助手</span>
-            <button class="close-chat" id="closeChat">
+        <div class="resize-handle" data-resize="n" title="向上缩放"></div>
+        <div class="resize-handle" data-resize="s" title="向下缩放"></div>
+        <div class="resize-handle" data-resize="e" title="向右缩放"></div>
+        <div class="resize-handle" data-resize="w" title="向左缩放"></div>
+        <div class="resize-handle" data-resize="ne" title="缩放窗口"></div>
+        <div class="resize-handle" data-resize="nw" title="缩放窗口"></div>
+        <div class="resize-handle" data-resize="se" title="缩放窗口"></div>
+        <div class="resize-handle" data-resize="sw" title="缩放窗口"></div>
+        <div class="chat-header" id="chatHeader" title="按住拖动窗口">
+            <div class="chat-agent">
+                <div class="chat-agent-avatar"><i class="fas fa-robot"></i></div>
+                <div class="chat-agent-copy">
+                    <strong>租房智能助手</strong>
+                    <span class="chat-status">在线，为您智能找房</span>
+                </div>
+            </div>
+            <button class="close-chat" id="closeChat" aria-label="关闭客服窗口" title="关闭">
                 <i class="fas fa-times"></i>
             </button>
         </div>
@@ -647,7 +1276,7 @@
         </div>
         <div class="chat-input-area">
             <input type="text" class="chat-input" id="chatInput" placeholder="输入您的租房需求...">
-            <button class="send-btn" id="sendBtn">发送</button>
+            <button class="send-btn" id="sendBtn" aria-label="发送消息" title="发送消息">发送</button>
         </div>
     </div>
 
@@ -675,6 +1304,8 @@
         // DOM元素
         const chatIcon = document.getElementById('chatIcon');
         const chatContainer = document.getElementById('chatContainer');
+        const chatHeader = document.getElementById('chatHeader');
+        const resizeHandles = chatContainer.querySelectorAll('.resize-handle');
         const closeChat = document.getElementById('closeChat');
         const chatMessages = document.getElementById('chatMessages');
         const chatInput = document.getElementById('chatInput');
@@ -684,11 +1315,197 @@
         const layoutInput = document.getElementById('layoutInput');
         const searchBtn = document.getElementById('searchBtn');
 
+        const CHAT_POSITION_KEY = 'rental-assistant-position';
+        const CHAT_VIEWPORT_MARGIN = 8;
+        const CHAT_MIN_WIDTH = 320;
+        const CHAT_MIN_HEIGHT = 360;
+        let dragState = null;
+        let resizeState = null;
+
+        function clamp(value, min, max) {
+            return Math.min(Math.max(value, min), max);
+        }
+
+        function setChatSize(width, height) {
+            const maxWidth = Math.max(1, window.innerWidth - CHAT_VIEWPORT_MARGIN * 2);
+            const maxHeight = Math.max(1, window.innerHeight - CHAT_VIEWPORT_MARGIN * 2);
+            const minWidth = Math.min(CHAT_MIN_WIDTH, maxWidth);
+            const minHeight = Math.min(CHAT_MIN_HEIGHT, maxHeight);
+
+            chatContainer.style.width = `${clamp(width, minWidth, maxWidth)}px`;
+            chatContainer.style.height = `${clamp(height, minHeight, maxHeight)}px`;
+        }
+
+        function setChatPosition(left, top) {
+            const maxLeft = Math.max(CHAT_VIEWPORT_MARGIN,
+                window.innerWidth - chatContainer.offsetWidth - CHAT_VIEWPORT_MARGIN);
+            const maxTop = Math.max(CHAT_VIEWPORT_MARGIN,
+                window.innerHeight - chatContainer.offsetHeight - CHAT_VIEWPORT_MARGIN);
+
+            chatContainer.style.left = `${Math.min(Math.max(left, CHAT_VIEWPORT_MARGIN), maxLeft)}px`;
+            chatContainer.style.top = `${Math.min(Math.max(top, CHAT_VIEWPORT_MARGIN), maxTop)}px`;
+            chatContainer.style.right = 'auto';
+            chatContainer.style.bottom = 'auto';
+        }
+
+        function saveChatPosition() {
+            try {
+                const rect = chatContainer.getBoundingClientRect();
+                localStorage.setItem(CHAT_POSITION_KEY, JSON.stringify({
+                    left: rect.left,
+                    top: rect.top,
+                    width: rect.width,
+                    height: rect.height
+                }));
+            } catch (error) {
+                console.debug('Unable to save chat position:', error);
+            }
+        }
+
+        function restoreChatPosition() {
+            try {
+                const savedPosition = JSON.parse(localStorage.getItem(CHAT_POSITION_KEY));
+                if (Number.isFinite(savedPosition?.width) && Number.isFinite(savedPosition?.height)) {
+                    setChatSize(savedPosition.width, savedPosition.height);
+                }
+                if (Number.isFinite(savedPosition?.left) && Number.isFinite(savedPosition?.top)) {
+                    setChatPosition(savedPosition.left, savedPosition.top);
+                }
+            } catch (error) {
+                localStorage.removeItem(CHAT_POSITION_KEY);
+            }
+        }
+
+        function keepChatInViewport() {
+            if (!isChatOpen || !chatContainer.style.left) return;
+            const rect = chatContainer.getBoundingClientRect();
+            setChatSize(rect.width, rect.height);
+            setChatPosition(rect.left, rect.top);
+            saveChatPosition();
+        }
+
+        chatHeader.addEventListener('pointerdown', (event) => {
+            if (event.button !== 0 || event.target.closest('button, input, a')) return;
+
+            const rect = chatContainer.getBoundingClientRect();
+            dragState = {
+                pointerId: event.pointerId,
+                offsetX: event.clientX - rect.left,
+                offsetY: event.clientY - rect.top
+            };
+            setChatPosition(rect.left, rect.top);
+            chatContainer.classList.add('is-dragging');
+            chatHeader.setPointerCapture(event.pointerId);
+            event.preventDefault();
+        });
+
+        chatHeader.addEventListener('pointermove', (event) => {
+            if (!dragState || event.pointerId !== dragState.pointerId) return;
+            setChatPosition(
+                event.clientX - dragState.offsetX,
+                event.clientY - dragState.offsetY
+            );
+        });
+
+        function finishChatDrag(event) {
+            if (!dragState || event.pointerId !== dragState.pointerId) return;
+            dragState = null;
+            chatContainer.classList.remove('is-dragging');
+            saveChatPosition();
+        }
+
+        chatHeader.addEventListener('pointerup', finishChatDrag);
+        chatHeader.addEventListener('pointercancel', finishChatDrag);
+
+        resizeHandles.forEach((handle) => {
+            handle.addEventListener('pointerdown', (event) => {
+                if (event.button !== 0) return;
+
+                const rect = chatContainer.getBoundingClientRect();
+                resizeState = {
+                    pointerId: event.pointerId,
+                    handle,
+                    direction: handle.dataset.resize,
+                    startX: event.clientX,
+                    startY: event.clientY,
+                    left: rect.left,
+                    top: rect.top,
+                    width: rect.width,
+                    height: rect.height
+                };
+
+                setChatPosition(rect.left, rect.top);
+                setChatSize(rect.width, rect.height);
+                chatContainer.classList.add('is-resizing');
+                handle.setPointerCapture(event.pointerId);
+                event.preventDefault();
+                event.stopPropagation();
+            });
+
+            handle.addEventListener('pointermove', (event) => {
+                if (!resizeState || event.pointerId !== resizeState.pointerId) return;
+
+                const state = resizeState;
+                const direction = state.direction;
+                const deltaX = event.clientX - state.startX;
+                const deltaY = event.clientY - state.startY;
+                const right = state.left + state.width;
+                const bottom = state.top + state.height;
+                const viewportMaxWidth = window.innerWidth - CHAT_VIEWPORT_MARGIN * 2;
+                const viewportMaxHeight = window.innerHeight - CHAT_VIEWPORT_MARGIN * 2;
+                const minWidth = Math.min(CHAT_MIN_WIDTH, viewportMaxWidth);
+                const minHeight = Math.min(CHAT_MIN_HEIGHT, viewportMaxHeight);
+
+                let left = state.left;
+                let top = state.top;
+                let width = state.width;
+                let height = state.height;
+
+                if (direction.includes('e')) {
+                    const maxWidth = window.innerWidth - CHAT_VIEWPORT_MARGIN - state.left;
+                    width = clamp(state.width + deltaX, minWidth, maxWidth);
+                }
+                if (direction.includes('w')) {
+                    const maxWidth = right - CHAT_VIEWPORT_MARGIN;
+                    width = clamp(state.width - deltaX, minWidth, maxWidth);
+                    left = right - width;
+                }
+                if (direction.includes('s')) {
+                    const maxHeight = window.innerHeight - CHAT_VIEWPORT_MARGIN - state.top;
+                    height = clamp(state.height + deltaY, minHeight, maxHeight);
+                }
+                if (direction.includes('n')) {
+                    const maxHeight = bottom - CHAT_VIEWPORT_MARGIN;
+                    height = clamp(state.height - deltaY, minHeight, maxHeight);
+                    top = bottom - height;
+                }
+
+                chatContainer.style.left = `${left}px`;
+                chatContainer.style.top = `${top}px`;
+                chatContainer.style.width = `${width}px`;
+                chatContainer.style.height = `${height}px`;
+            });
+
+            const finishResize = (event) => {
+                if (!resizeState || event.pointerId !== resizeState.pointerId) return;
+                resizeState = null;
+                chatContainer.classList.remove('is-resizing');
+                saveChatPosition();
+            };
+
+            handle.addEventListener('pointerup', finishResize);
+            handle.addEventListener('pointercancel', finishResize);
+        });
+
+        window.addEventListener('resize', keepChatInViewport);
+
         // 打开聊天窗口
         async function openChatPanel() {
             if (!isChatOpen) {
                 chatContainer.style.display = 'flex';
                 isChatOpen = true;
+                chatIcon.setAttribute('aria-expanded', 'true');
+                restoreChatPosition();
             }
 
             // 如果没有会话，则创建一个
@@ -703,11 +1520,19 @@
         }
 
         chatIcon.addEventListener('click', openChatPanel);
+        chatIcon.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                openChatPanel();
+            }
+        });
 
         // 关闭聊天窗口
         closeChat.addEventListener('click', () => {
             chatContainer.style.display = 'none';
             isChatOpen = false;
+            chatIcon.setAttribute('aria-expanded', 'false');
+            chatIcon.focus();
         });
 
         // 发送消息
