@@ -15,9 +15,13 @@ from src.agent.common.database import DatabaseUnavailable, mysql_connection, quo
 
 
 class CatalogState(TypedDict, total=False):
+    keyword: str
     location: str
+    budget_min: float | int | str | None
     budget_max: float | int | str | None
     layout: str
+    orientation: str
+    sort: str
     limit: int
     listings: list[dict[str, Any]]
     total: int
@@ -92,8 +96,15 @@ def re_split_tags(value: str) -> list[str]:
 
 def _query_catalog(state: CatalogState) -> list[dict[str, Any]]:
     limit = max(1, min(int(state.get("limit") or 9), 24))
+    keyword = str(state.get("keyword") or "").strip()
     location = str(state.get("location") or "").strip()
     layout_filter = str(state.get("layout") or "").strip()
+    orientation_filter = str(state.get("orientation") or "").strip()
+    sort = str(state.get("sort") or "price_asc")
+    try:
+        budget_min = float(state["budget_min"]) if state.get("budget_min") not in (None, "") else None
+    except (TypeError, ValueError):
+        budget_min = None
     try:
         budget_max = float(state["budget_max"]) if state.get("budget_max") not in (None, "") else None
     except (TypeError, ValueError):
@@ -107,14 +118,30 @@ def _query_catalog(state: CatalogState) -> list[dict[str, Any]]:
         )
         where: list[str] = []
         params: list[Any] = []
+        if keyword:
+            searchable = [
+                mapping[key]
+                for key in ("title", "city", "region", "address", "layout", "orientation", "intro", "tags")
+                if mapping[key]
+            ]
+            for token in keyword.split():
+                where.append("(" + " OR ".join(f"{quote_identifier(col)} LIKE %s" for col in searchable) + ")")
+                params.extend([f"%{token}%"] * len(searchable))
         if location:
             location_columns = [mapping[key] for key in ("city", "region", "address") if mapping[key]]
             if location_columns:
-                where.append("(" + " OR ".join(f"{quote_identifier(col)} LIKE %s" for col in location_columns) + ")")
-                params.extend([f"%{location}%"] * len(location_columns))
+                for token in location.split():
+                    where.append("(" + " OR ".join(f"{quote_identifier(col)} LIKE %s" for col in location_columns) + ")")
+                    params.extend([f"%{token}%"] * len(location_columns))
         if layout_filter and mapping["layout"]:
             where.append(f"{quote_identifier(mapping['layout'])} LIKE %s")
             params.append(f"%{layout_filter}%")
+        if orientation_filter and mapping["orientation"]:
+            where.append(f"{quote_identifier(mapping['orientation'])} LIKE %s")
+            params.append(f"%{orientation_filter}%")
+        if budget_min is not None:
+            where.append(f"CAST({quote_identifier(mapping['price'])} AS DECIMAL(12,2)) >= %s")
+            params.append(budget_min)
         if budget_max is not None:
             where.append(f"CAST({quote_identifier(mapping['price'])} AS DECIMAL(12,2)) <= %s")
             params.append(budget_max)
@@ -124,7 +151,8 @@ def _query_catalog(state: CatalogState) -> list[dict[str, Any]]:
         sql = f"SELECT {projections} FROM {quote_identifier(table)}"
         if where:
             sql += " WHERE " + " AND ".join(where)
-        sql += f" ORDER BY {quote_identifier(mapping['price'])} ASC LIMIT %s"
+        direction = "DESC" if sort == "price_desc" else "ASC"
+        sql += f" ORDER BY CAST({quote_identifier(mapping['price'])} AS DECIMAL(12,2)) {direction} LIMIT %s"
         params.append(limit)
         with connection.cursor() as cursor:
             cursor.execute(sql, tuple(params))
@@ -152,10 +180,66 @@ def _query_catalog(state: CatalogState) -> list[dict[str, Any]]:
     return listings
 
 
+def lookup_listing_detail(listing_id: str = "", title: str = "") -> dict[str, Any] | None:
+    """Look up one listing by its database identifier, with an exact-title fallback."""
+
+    listing_id = str(listing_id or "").strip()
+    title = str(title or "").strip()
+    if not listing_id and not title:
+        return None
+
+    with mysql_connection() as connection:
+        table, mapping = _select_table(connection)
+        selected = {field: column for field, column in mapping.items() if column}
+        projections = ", ".join(
+            f"{quote_identifier(column)} AS {quote_identifier(field)}" for field, column in selected.items()
+        )
+        where: list[str] = []
+        params: list[Any] = []
+        if listing_id and mapping["id"]:
+            where.append(f"CAST({quote_identifier(mapping['id'])} AS CHAR) = %s")
+            params.append(listing_id)
+        elif title and mapping["title"]:
+            where.append(f"{quote_identifier(mapping['title'])} = %s")
+            params.append(title)
+        if not where:
+            return None
+
+        sql = f"SELECT {projections} FROM {quote_identifier(table)} WHERE " + " OR ".join(where) + " LIMIT 1"
+        with connection.cursor() as cursor:
+            cursor.execute(sql, tuple(params))
+            row = cursor.fetchone()
+
+    if not row:
+        return None
+    price = row.get("price")
+    try:
+        price = float(price) if price is not None else None
+    except (TypeError, ValueError):
+        price = None
+    return {
+        "id": str(row.get("id") or listing_id),
+        "title": str(row.get("title") or title or "优选房源"),
+        "price": price,
+        "city": str(row.get("city") or ""),
+        "region": str(row.get("region") or ""),
+        "address": str(row.get("address") or ""),
+        "layout": str(row.get("layout") or ""),
+        "orientation": str(row.get("orientation") or ""),
+        "intro": str(row.get("intro") or ""),
+        "status": str(row.get("status") or ""),
+        "image": str(row.get("image") or ""),
+        "tags": _serialize_tags(row.get("tags"), row.get("orientation"), row.get("layout")),
+    }
+
+
 def load_catalog(state: CatalogState) -> CatalogState:
     """Load real listings, serving the latest successful snapshot on outages."""
 
-    unfiltered = not any(state.get(key) not in (None, "") for key in ("location", "budget_max", "layout"))
+    unfiltered = not any(
+        state.get(key) not in (None, "", "price_asc")
+        for key in ("keyword", "location", "budget_min", "budget_max", "layout", "orientation", "sort")
+    )
     with _cache_lock:
         if unfiltered and _cache["listings"] and time.monotonic() - _cache["at"] < CACHE_TTL_SECONDS:
             listings = list(_cache["listings"])

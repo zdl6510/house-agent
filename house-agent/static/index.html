@@ -776,6 +776,26 @@
         .house-card.skeleton { min-height: 390px; background: linear-gradient(100deg,#edf2f0 30%,#f8faf9 50%,#edf2f0 70%); background-size: 300% 100%; animation: shimmer 1.4s infinite; }
         @keyframes shimmer { to { background-position-x: -150%; } }
 
+        .assistant-search { flex-wrap: wrap; }
+        .assistant-search .search-input { width: 100%; }
+        .assistant-search-status { flex-basis: 100%; color: #b34132; font-size: .88rem; }
+        .filter-panel { margin-top: 30px; padding: 24px; background: #fff; border: 1px solid var(--line); border-radius: 8px; box-shadow: var(--shadow-sm); }
+        .filter-heading { margin-bottom: 6px; font-size: 1.15rem; }
+        .filter-description { margin-bottom: 18px; color: var(--muted); font-size: .92rem; }
+        .filter-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+        .filter-field { display: flex; flex-direction: column; gap: 6px; }
+        .filter-field label { color: #48615b; font-size: .82rem; font-weight: 600; }
+        .filter-field input, .filter-field select { width: 100%; height: 44px; padding: 0 12px; color: var(--ink); background: #f7faf9; border: 1px solid var(--line); border-radius: 6px; }
+        .filter-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 16px; }
+        .filter-reset { min-height: 44px; padding: 0 20px; color: var(--primary); background: #fff; border: 1px solid #b9d4cd; border-radius: 6px; cursor: pointer; }
+
+        @media (max-width: 768px) {
+            .assistant-search { flex-wrap: wrap; }
+            .filter-grid { grid-template-columns: 1fr 1fr; }
+        }
+
+        @media (max-width: 520px) { .filter-grid { grid-template-columns: 1fr; } }
+
         .house-info {
             position: relative;
             padding: 20px;
@@ -1166,11 +1186,10 @@
             <p class="subtitle">AI智能推荐，快速找到心仪房源。只需描述您的需求，智能助手将为您匹配最合适的租房选项</p>
         </header>
 
-        <div class="search-box">
-            <input type="text" class="search-input" id="locationInput" placeholder="输入城市、区域或小区名称">
-            <input type="text" class="search-input" id="budgetInput" placeholder="租金预算（元/月）">
-            <input type="text" class="search-input" id="layoutInput" placeholder="户型需求（如：1室1厅）">
-            <button class="search-btn" id="searchBtn">搜索房源</button>
+        <div class="search-box assistant-search">
+            <input type="text" class="search-input" id="aiQueryInput" aria-label="向租房助手描述找房需求" placeholder="直接描述需求，如：西安高新区，两室，预算 3500 元，近地铁">
+            <button class="search-btn" id="aiSearchBtn">让助手找房</button>
+            <span class="assistant-search-status" id="assistantSearchStatus" role="alert" hidden></span>
         </div>
 
         <div class="features">
@@ -1207,6 +1226,23 @@
                 <div class="house-card skeleton"></div>
                 <div class="house-card skeleton"></div>
             </div>
+            <section class="filter-panel" aria-labelledby="filterHeading">
+                <h3 class="filter-heading" id="filterHeading">传统条件搜索</h3>
+                <p class="filter-description">精确组合关键词、区域、租金、户型和朝向，搜索结果会更新到上方列表。</p>
+                <div class="filter-grid">
+                    <div class="filter-field"><label for="keywordInput">关键词</label><input id="keywordInput" type="search" placeholder="小区、标题、特色"></div>
+                    <div class="filter-field"><label for="locationInput">城市 / 区域</label><input id="locationInput" type="text" placeholder="如：西安 雁塔区"></div>
+                    <div class="filter-field"><label for="budgetMinInput">最低租金</label><input id="budgetMinInput" type="number" min="0" step="100" placeholder="不限"></div>
+                    <div class="filter-field"><label for="budgetMaxInput">最高租金</label><input id="budgetMaxInput" type="number" min="0" step="100" placeholder="不限"></div>
+                    <div class="filter-field"><label for="layoutInput">户型</label><input id="layoutInput" type="text" placeholder="如：2室1厅"></div>
+                    <div class="filter-field"><label for="orientationInput">朝向</label><input id="orientationInput" type="text" placeholder="如：南"></div>
+                    <div class="filter-field"><label for="sortInput">排序</label><select id="sortInput"><option value="price_asc">租金从低到高</option><option value="price_desc">租金从高到低</option></select></div>
+                </div>
+                <div class="filter-actions">
+                    <button class="filter-reset" id="filterResetBtn" type="button">重置</button>
+                    <button class="search-btn" id="catalogSearchBtn" type="button">精确搜索</button>
+                </div>
+            </section>
         </div>
 
         <footer>
@@ -1284,10 +1320,18 @@
         const chatMessages = document.getElementById('chatMessages');
         const chatInput = document.getElementById('chatInput');
         const sendBtn = document.getElementById('sendBtn');
+        const aiQueryInput = document.getElementById('aiQueryInput');
+        const aiSearchBtn = document.getElementById('aiSearchBtn');
+        const assistantSearchStatus = document.getElementById('assistantSearchStatus');
+        const keywordInput = document.getElementById('keywordInput');
         const locationInput = document.getElementById('locationInput');
-        const budgetInput = document.getElementById('budgetInput');
+        const budgetMinInput = document.getElementById('budgetMinInput');
+        const budgetMaxInput = document.getElementById('budgetMaxInput');
         const layoutInput = document.getElementById('layoutInput');
-        const searchBtn = document.getElementById('searchBtn');
+        const orientationInput = document.getElementById('orientationInput');
+        const sortInput = document.getElementById('sortInput');
+        const catalogSearchBtn = document.getElementById('catalogSearchBtn');
+        const filterResetBtn = document.getElementById('filterResetBtn');
         const houses = document.getElementById('houses');
         const catalogStatus = document.getElementById('catalogStatus');
 
@@ -1544,21 +1588,53 @@
                 sendMessage();
             }
         });
-        searchBtn.addEventListener('click', handleHouseSearch);
-        [locationInput, budgetInput, layoutInput].forEach((input) => {
+        aiSearchBtn.addEventListener('click', handleAssistantSearch);
+        aiQueryInput.addEventListener('keypress', (event) => {
+            if (event.key === 'Enter') handleAssistantSearch();
+        });
+        catalogSearchBtn.addEventListener('click', handleHouseSearch);
+        [keywordInput, locationInput, budgetMinInput, budgetMaxInput, layoutInput, orientationInput].forEach((input) => {
             input.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') {
                     handleHouseSearch();
                 }
             });
         });
+        filterResetBtn.addEventListener('click', () => {
+            [keywordInput, locationInput, budgetMinInput, budgetMaxInput, layoutInput, orientationInput].forEach(input => { input.value = ''; });
+            sortInput.value = 'price_asc';
+            loadCatalog({limit: 9});
+        });
 
-        // 创建会话
+        async function handleAssistantSearch() {
+            const query = aiQueryInput.value.trim();
+            if (!query) {
+                assistantSearchStatus.textContent = '请先输入地点、预算、户型或其他找房需求。';
+                assistantSearchStatus.hidden = false;
+                aiQueryInput.focus();
+                return;
+            }
+            assistantSearchStatus.hidden = true;
+            await openChatPanel();
+            await sendMessage(`[推荐房源]${query}`, `找房需求：${query}`);
+        }
+
         async function handleHouseSearch() {
+            const budgetMin = parseBudget(budgetMinInput.value);
+            const budgetMax = parseBudget(budgetMaxInput.value);
+            if (budgetMin !== null && budgetMax !== null && budgetMin > budgetMax) {
+                catalogStatus.className = 'catalog-status error';
+                catalogStatus.textContent = '最低租金不能高于最高租金';
+                return;
+            }
             await loadCatalog({
+                keyword: keywordInput.value.trim(),
                 location: locationInput.value.trim(),
-                budget_max: parseBudget(budgetInput.value),
+                budget_min: budgetMin,
+                budget_max: budgetMax,
                 layout: layoutInput.value.trim(),
+                orientation: orientationInput.value.trim(),
+                sort: sortInput.value,
                 limit: 12
             });
         }
@@ -1616,8 +1692,14 @@
                 const tags = document.createElement('div'); tags.className = 'house-tags';
                 (listing.tags || []).forEach(value => { const tag = document.createElement('span'); tag.className = 'tag'; tag.textContent = value; tags.appendChild(tag); });
                 const actions = document.createElement('div'); actions.className = 'house-actions';
-                const consult = document.createElement('button'); consult.className = 'house-action'; consult.textContent = '咨询详情'; consult.type = 'button';
-                consult.addEventListener('click', async () => { await openChatPanel(); await sendMessage(`请介绍一下房源“${listing.title}”的详细信息。`); });
+                const consult = document.createElement('button'); consult.className = 'house-action'; consult.textContent = '查看详情'; consult.type = 'button';
+                consult.addEventListener('click', async () => {
+                    await openChatPanel();
+                    await sendMessage(
+                        `[房源详情查询]${JSON.stringify({id: String(listing.id || ''), title: listing.title || ''})}`,
+                        `查看房源详情：${listing.title || listing.id}`
+                    );
+                });
                 const reserve = document.createElement('button'); reserve.className = 'house-action primary'; reserve.textContent = '预约看房'; reserve.type = 'button';
                 reserve.addEventListener('click', async () => { await openChatPanel(); await sendMessage(`我想预订房源“${listing.title}”。`); });
                 actions.append(consult, reserve); info.append(title, location, price, tags, actions); card.append(image, favorite, info); houses.appendChild(card);
@@ -1630,7 +1712,7 @@
             catalogRequest = controller;
             const timeout = setTimeout(() => controller.abort(), 12000);
             houses.setAttribute('aria-busy', 'true'); catalogStatus.className = 'catalog-status';
-            catalogStatus.textContent = '正在读取真实房源…'; searchBtn.disabled = true;
+            catalogStatus.textContent = '正在读取真实房源…'; catalogSearchBtn.disabled = true;
             try {
                 const response = await fetch(`${API_BASE_URL}/runs/wait`, {
                     method: 'POST', headers: {'Content-Type': 'application/json'}, signal: controller.signal,
@@ -1647,31 +1729,8 @@
                 catalogStatus.textContent = error.name === 'AbortError' ? '请求超时，请稍后重试' : '房源服务暂时不可用，请稍后重试';
             } finally {
                 clearTimeout(timeout);
-                if (catalogRequest === controller) searchBtn.disabled = false;
+                if (catalogRequest === controller) catalogSearchBtn.disabled = false;
             }
-        }
-
-        function buildHouseSearchMessage() {
-            const location = locationInput.value.trim();
-            const budget = budgetInput.value.trim();
-            const layout = layoutInput.value.trim();
-
-            if (!location && !budget && !layout) {
-                return '';
-            }
-
-            const requirements = [];
-            if (location) {
-                requirements.push(`地点：${location}`);
-            }
-            if (budget) {
-                requirements.push(`预算：${budget} 元/月`);
-            }
-            if (layout) {
-                requirements.push(`户型：${layout}`);
-            }
-
-            return `我想找房源，${requirements.join('，')}。请根据这些需求帮我推荐合适的租房房源。`;
         }
 
         async function createThread() {
@@ -1710,7 +1769,7 @@
         }
 
         // 发送消息函数
-        async function sendMessage(messageOverride) {
+        async function sendMessage(messageOverride, displayOverride) {
             const message = (typeof messageOverride === 'string' ? messageOverride : chatInput.value).trim();
             if (!message || isSending) return;
             if (!currentThreadId && !(await createThread())) return;
@@ -1726,7 +1785,7 @@
             // 显示用户消息
             const userMessageElement = document.createElement('div');
             userMessageElement.className = 'message user-message';
-            userMessageElement.textContent = message;
+            userMessageElement.textContent = typeof displayOverride === 'string' ? displayOverride : message;
             chatMessages.appendChild(userMessageElement);
 
             chatMessages.scrollTop = chatMessages.scrollHeight;
@@ -1851,7 +1910,7 @@
                                 if (currentType.startsWith('updates')) {
                                     if (Object.values(data).some(v => v && typeof v === 'object' && 'messages' in v)) {
                                         // 去重：子图更新的state, 主图也会再更新一次。只输出子图内容
-                                        if (currentType === 'updates\r') {
+                                        if (currentType === 'updates\r' && !data.query_listing_detail) {
                                             continue;
                                         }
 
@@ -1880,6 +1939,12 @@
                                                 thinkContentText += msg.content + '\n';
                                                 thinkContent.textContent = thinkContentText;
                                                 chatMessages.scrollTop = chatMessages.scrollHeight;
+                                            } else if (data.query_listing_detail && msg.type === 'ai' && msg.content) {
+                                                const detailMessage = document.createElement('div');
+                                                detailMessage.className = 'message ai-message';
+                                                detailMessage.innerHTML = safeMarkdown(msg.content);
+                                                chatMessages.appendChild(detailMessage);
+                                                chatMessages.scrollTop = chatMessages.scrollHeight;
                                             }
                                         }
                                     } else if (data.__interrupt__ && interruptId !== data.__interrupt__[0].id) {
@@ -1907,9 +1972,9 @@
                                     if (metadata[0] && (
                                         metadata[0].langgraph_node === 'generate_query'
                                         || metadata[0].langgraph_node === 'call_orders'
-                                        || metadata[0].langgraph_node === 'extend_node'
-                                        || metadata[0].langgraph_node === 'get_user_preferences'
-                                    )) {
+                                         || metadata[0].langgraph_node === 'extend_node'
+                                         || metadata[0].langgraph_node === 'get_user_preferences'
+                                     )) {
                                         startAI = true;
                                         // 创建AI消息元素
                                         if (!aiMessageElement || aiMessageElement.innerHTML.trim() !== '') {

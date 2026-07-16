@@ -31,8 +31,8 @@ def get_store_info(state: State, runtime: Runtime[ContextSchema], config: Runnab
         }
 
 class UserMessage(BaseModel):
-    type: Literal["recommend_house", "reserve_house", "get_info", "others"] = Field(
-        description="根据用户问题描述判断问题类型：推荐房源、预定房源、获取信息、其它内容"
+    type: Literal["recommend_house", "listing_detail", "reserve_house", "get_info", "others"] = Field(
+        description="根据用户问题描述判断问题类型：推荐房源、查看指定房源详情、预定房源、获取信息、其它内容"
     )
 
 # 节点：识别用户意图
@@ -41,6 +41,10 @@ def identify_question(state: State):
     messages = state.get("messages", [])
     if not messages:
         return {"user_intent": "others"}
+    if str(messages[-1].content).strip().startswith("[推荐房源]"):
+        return {"user_intent": "recommend_house"}
+    if str(messages[-1].content).strip().startswith("[房源详情查询]"):
+        return {"user_intent": "listing_detail"}
     try:
         user_intent = model.with_structured_output(UserMessage).invoke(
             [SystemMessage(content="你是一个根据描述提取信息的提取专家。请从用户的描述中提取想要咨询的相关信息。"
